@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="UAMS.API/UAMS.API.csproj" />
+  <Project Path="UAMS.Application/UAMS.Application.csproj" />
+  <Project Path="UAMS.Domain/UAMS.Domain.csproj" />
+  <Project Path="UAMS.Infrastructure/UAMS.Infrastructure.csproj" />
+  <Project Path="UAMS.Persistence/UAMS.Persistence.csproj" />
+</Solution>
