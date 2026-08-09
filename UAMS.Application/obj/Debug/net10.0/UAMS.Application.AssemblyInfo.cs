@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UAMS.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6b8e685f12488f45ec0da4491fb3bfd6ca626f37")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f78a9b75cd889b8dbd6e70aace2e3eeb8080ead0")]
 [assembly: System.Reflection.AssemblyProductAttribute("UAMS.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UAMS.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

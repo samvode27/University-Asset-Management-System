@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UAMS.Application\UAMS.Application.csproj" />
-    <ProjectReference Include="..\UAMS.Persistence\UAMS.Persistence.csproj" />
     <ProjectReference Include="..\UAMS.Infrastructure\UAMS.Infrastructure.csproj" />
   </ItemGroup>
 
