@@ -12,36 +12,6 @@ public class DamageReport : AuditableEntity
     {
     }
 
-    public DamageReport(
-        string reportNumber,
-        Guid assetId,
-        Guid assetAssignmentId,
-        Guid reportedById,
-        DateTime reportedDate,
-        DamageType damageType,
-        DamageSeverity severity,
-        string description,
-        DateTime? incidentDate,
-        string? incidentLocation,
-        string? remarks)
-    {
-        ReportNumber = reportNumber;
-        AssetId = assetId;
-        AssetAssignmentId = assetAssignmentId;
-        ReportedById = reportedById;
-        ReportedDate = reportedDate;
-        DamageType = damageType;
-        Severity = severity;
-        Description = description;
-        IncidentDate = incidentDate;
-        IncidentLocation = incidentLocation;
-        Remarks = remarks;
-
-        Status = DamageReportStatus.Submitted;
-        IsRepairable = null;
-        IsActive = true;
-    }
-
     public string ReportNumber { get; private set; } = null!;
 
     public Guid AssetId { get; private set; }
@@ -77,8 +47,6 @@ public class DamageReport : AuditableEntity
     public DateTime? ResolvedDate { get; private set; }
 
     public string? Remarks { get; private set; }
-
-    public bool IsActive { get; private set; }
 
     // Navigation Properties
     public Asset Asset { get; private set; } = null!;

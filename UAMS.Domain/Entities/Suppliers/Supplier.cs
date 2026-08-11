@@ -9,26 +9,6 @@ public class Supplier : AuditableEntity
     {
     }
 
-    public Supplier(
-        string code,
-        string name,
-        string? contactPerson,
-        string? email,
-        string? phoneNumber,
-        string? address,
-        string? taxIdentificationNumber)
-    {
-        Code = code;
-        Name = name;
-        ContactPerson = contactPerson;
-        Email = email;
-        PhoneNumber = phoneNumber;
-        Address = address;
-        TaxIdentificationNumber = taxIdentificationNumber;
-
-        IsActive = true;
-    }
-
     public string Code { get; private set; } = null!;
 
     public string Name { get; private set; } = null!;
@@ -47,38 +27,4 @@ public class Supplier : AuditableEntity
     public ICollection<Purchase> Purchases { get; private set; }
         = new List<Purchase>();
 
-    public void Update(
-        string code,
-        string name,
-        string? contactPerson,
-        string? email,
-        string? phoneNumber,
-        string? address,
-        string? taxIdentificationNumber)
-    {
-        Code = code;
-        Name = name;
-        ContactPerson = contactPerson;
-        Email = email;
-        PhoneNumber = phoneNumber;
-        Address = address;
-        TaxIdentificationNumber = taxIdentificationNumber;
-    }
-
-    public void Activate()
-    {
-        IsActive = true;
-    }
-
-    public void Deactivate()
-    {
-        IsActive = false;
-    }
-
-    public void MarkDeleted(Guid deletedBy)
-    {
-        IsDeleted = true;
-        DeletedAt = DateTime.UtcNow;
-        DeletedBy = deletedBy;
-    }
 }

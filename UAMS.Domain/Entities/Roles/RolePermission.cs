@@ -9,18 +9,6 @@ public class RolePermission : BaseEntity
     {
     }
 
-    public RolePermission(
-        Guid roleId,
-        Guid permissionId,
-        Guid assignedBy)
-    {
-        RoleId = roleId;
-        PermissionId = permissionId;
-        AssignedBy = assignedBy;
-        AssignedAt = DateTime.UtcNow;
-        IsActive = true;
-    }
-
     public Guid RoleId { get; private set; }
 
     public Guid PermissionId { get; private set; }
@@ -35,13 +23,4 @@ public class RolePermission : BaseEntity
 
     public Permission Permission { get; private set; } = null!;
 
-    public void Activate()
-    {
-        IsActive = true;
-    }
-
-    public void Deactivate()
-    {
-        IsActive = false;
-    }
 }

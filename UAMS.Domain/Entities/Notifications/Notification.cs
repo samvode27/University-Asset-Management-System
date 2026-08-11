@@ -10,31 +10,6 @@ public class Notification : AuditableEntity
     {
     }
 
-    public Notification(
-        Guid userId,
-        string title,
-        string message,
-        NotificationType type,
-        NotificationPriority priority,
-        Guid? referenceId,
-        string? referenceType,
-        string? actionUrl,
-        DateTime? expiresAt)
-    {
-        UserId = userId;
-        Title = title;
-        Message = message;
-        Type = type;
-        Priority = priority;
-        ReferenceId = referenceId;
-        ReferenceType = referenceType;
-        ActionUrl = actionUrl;
-        ExpiresAt = expiresAt;
-
-        Status = NotificationStatus.Unread;
-        IsActive = true;
-    }
-
 
     public Guid UserId { get; private set; }
 
@@ -58,71 +33,7 @@ public class Notification : AuditableEntity
 
     public DateTime? ExpiresAt { get; private set; }
 
-    public bool IsActive { get; private set; }
-
 
     public User User { get; private set; } = null!;
 
-
-    public void Update(
-        string title,
-        string message,
-        NotificationPriority priority,
-        string? actionUrl)
-    {
-        Title = title;
-        Message = message;
-        Priority = priority;
-        ActionUrl = actionUrl;
-    }
-
-
-    public void MarkAsRead()
-    {
-        Status = NotificationStatus.Read;
-        ReadAt = DateTime.UtcNow;
-    }
-
-
-    public void MarkAsUnread()
-    {
-        Status = NotificationStatus.Unread;
-        ReadAt = null;
-    }
-
-
-    public void Archive()
-    {
-        Status = NotificationStatus.Archived;
-    }
-
-
-    public void Expire()
-    {
-        if (ExpiresAt.HasValue &&
-            ExpiresAt.Value <= DateTime.UtcNow)
-        {
-            IsActive = false;
-        }
-    }
-
-
-    public void Activate()
-    {
-        IsActive = true;
-    }
-
-
-    public void Deactivate()
-    {
-        IsActive = false;
-    }
-
-
-    public void MarkDeleted(Guid deletedBy)
-    {
-        IsDeleted = true;
-        DeletedAt = DateTime.UtcNow;
-        DeletedBy = deletedBy;
-    }
 }

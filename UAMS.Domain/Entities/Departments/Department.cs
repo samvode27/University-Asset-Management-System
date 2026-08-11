@@ -11,21 +11,6 @@ public class Department : AuditableEntity
     {
     }
 
-    public Department(
-        string code,
-        string name,
-        string? description,
-        string? officeLocation = null,
-        DateTime? establishedDate = null)
-    {
-        Code = code;
-        Name = name;
-        Description = description;
-        OfficeLocation = officeLocation;
-        EstablishedDate = establishedDate;
-        IsActive = true;
-    }
-
     public string Code { get; private set; } = null!;
 
     public string Name { get; private set; } = null!;
@@ -53,46 +38,4 @@ public class Department : AuditableEntity
     public ICollection<AssetRequest> AssetRequests { get; private set; }
         = new List<AssetRequest>();
 
-
-    public void Update(
-        string code,
-        string name,
-        string? description,
-        string? officeLocation,
-        DateTime? establishedDate)
-    {
-        Code = code;
-        Name = name;
-        Description = description;
-        OfficeLocation = officeLocation;
-        EstablishedDate = establishedDate;
-    }
-
-    public void AssignDepartmentHead(Guid departmentHeadId)
-    {
-        DepartmentHeadId = departmentHeadId;
-    }
-
-    public void RemoveDepartmentHead()
-    {
-        DepartmentHeadId = null;
-        DepartmentHead = null;
-    }
-
-    public void Activate()
-    {
-        IsActive = true;
-    }
-
-    public void Deactivate()
-    {
-        IsActive = false;
-    }
-
-    public void MarkDeleted(Guid deletedBy)
-    {
-        IsDeleted = true;
-        DeletedAt = DateTime.UtcNow;
-        DeletedBy = deletedBy;
-    }
 }

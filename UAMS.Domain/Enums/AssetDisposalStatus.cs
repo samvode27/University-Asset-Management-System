@@ -2,10 +2,10 @@ namespace UAMS.Domain.Enums;
 
 public enum AssetDisposalStatus
 {
-    Requested = 1,
-    UnderReview = 2,
-    Approved = 3,
-    Rejected = 4,
-    Completed = 5,
-    Cancelled = 6
+    Requested,
+    UnderReview,
+    Approved,
+    Rejected,
+    Completed,
+    Cancelled
 }

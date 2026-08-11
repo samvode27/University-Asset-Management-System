@@ -13,39 +13,6 @@ public class AssetTransfer : AuditableEntity
     {
     }
 
-    public AssetTransfer(
-        string transferNumber,
-        Guid assetId,
-        Guid assetAssignmentId,
-        Guid requestedById,
-        Guid fromEmployeeId,
-        Guid toEmployeeId,
-        Guid fromDepartmentId,
-        Guid toDepartmentId,
-        string? fromLocation,
-        string? toLocation,
-        string reason,
-        DateTime requestedDate,
-        string? remarks)
-    {
-        TransferNumber = transferNumber;
-        AssetId = assetId;
-        AssetAssignmentId = assetAssignmentId;
-        RequestedById = requestedById;
-        FromEmployeeId = fromEmployeeId;
-        ToEmployeeId = toEmployeeId;
-        FromDepartmentId = fromDepartmentId;
-        ToDepartmentId = toDepartmentId;
-        FromLocation = fromLocation;
-        ToLocation = toLocation;
-        Reason = reason;
-        RequestedDate = requestedDate;
-        Remarks = remarks;
-
-        Status = AssetTransferStatus.PendingApproval;
-        IsActive = true;
-    }
-
     public string TransferNumber { get; private set; } = null!;
 
     public Guid AssetId { get; private set; }
@@ -82,8 +49,6 @@ public class AssetTransfer : AuditableEntity
 
     public AssetTransferStatus Status { get; private set; }
 
-    public bool IsActive { get; private set; }
-
     public Asset Asset { get; private set; } = null!;
 
     public AssetAssignment AssetAssignment { get; private set; } = null!;
@@ -101,72 +66,4 @@ public class AssetTransfer : AuditableEntity
     public User? ApprovedBy { get; private set; }
 
 
-    public void Update(
-        Guid toEmployeeId,
-        Guid toDepartmentId,
-        string? toLocation,
-        string reason,
-        string? remarks)
-    {
-        ToEmployeeId = toEmployeeId;
-        ToDepartmentId = toDepartmentId;
-        ToLocation = toLocation;
-        Reason = reason;
-        Remarks = remarks;
-    }
-
-
-    public void Approve(
-        Guid approvedById,
-        string? approvalRemarks)
-    {
-        ApprovedById = approvedById;
-        ApprovedDate = DateTime.UtcNow;
-        ApprovalRemarks = approvalRemarks;
-
-        Status = AssetTransferStatus.Approved;
-    }
-
-
-    public void Reject(
-        Guid approvedById,
-        string rejectionReason)
-    {
-        ApprovedById = approvedById;
-        ApprovedDate = DateTime.UtcNow;
-        ApprovalRemarks = rejectionReason;
-
-        Status = AssetTransferStatus.Rejected;
-        IsActive = false;
-    }
-
-
-    public void Complete()
-    {
-        CompletedDate = DateTime.UtcNow;
-        Status = AssetTransferStatus.Completed;
-        IsActive = false;
-    }
-
-
-    public void Cancel()
-    {
-        Status = AssetTransferStatus.Cancelled;
-        IsActive = false;
-    }
-
-
-    public void Activate()
-    {
-        Status = AssetTransferStatus.PendingApproval;
-        IsActive = true;
-    }
-
-
-    public void MarkDeleted(Guid deletedBy)
-    {
-        IsDeleted = true;
-        DeletedAt = DateTime.UtcNow;
-        DeletedBy = deletedBy;
-    }
 }

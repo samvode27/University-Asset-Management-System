@@ -9,24 +9,6 @@ public class QRCode : AuditableEntity
     {
     }
 
-    public QRCode(
-        Guid assetId,
-        string code,
-        string encodedData,
-        string? imagePath,
-        DateTime generatedAt,
-        DateTime? expiresAt)
-    {
-        AssetId = assetId;
-        Code = code;
-        EncodedData = encodedData;
-        ImagePath = imagePath;
-        GeneratedAt = generatedAt;
-        ExpiresAt = expiresAt;
-
-        IsActive = true;
-    }
-
     public Guid AssetId { get; private set; }
 
     public string Code { get; private set; } = null!;
@@ -41,53 +23,4 @@ public class QRCode : AuditableEntity
 
     public Asset Asset { get; private set; } = null!;
 
-
-    public void Update(
-        string encodedData,
-        string? imagePath,
-        DateTime? expiresAt)
-    {
-        EncodedData = encodedData;
-        ImagePath = imagePath;
-        ExpiresAt = expiresAt;
-    }
-
-
-    public void UpdateImagePath(string? imagePath)
-    {
-        ImagePath = imagePath;
-    }
-
-
-    public void Activate()
-    {
-        IsActive = true;
-    }
-
-
-    public void Deactivate()
-    {
-        IsActive = false;
-    }
-
-
-    public bool IsExpired()
-    {
-        return ExpiresAt.HasValue &&
-               ExpiresAt.Value <= DateTime.UtcNow;
-    }
-
-
-    public bool IsValid()
-    {
-        return IsActive && !IsExpired();
-    }
-
-
-    public void MarkDeleted(Guid deletedBy)
-    {
-        IsDeleted = true;
-        DeletedAt = DateTime.UtcNow;
-        DeletedBy = deletedBy;
-    }
 }

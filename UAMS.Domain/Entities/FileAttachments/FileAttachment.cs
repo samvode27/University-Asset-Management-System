@@ -10,39 +10,6 @@ public class FileAttachment : AuditableEntity
     {
     }
 
-    public FileAttachment(
-        Guid uploadedById,
-        string entityName,
-        Guid entityId,
-        string fileName,
-        string storedFileName,
-        string filePath,
-        string contentType,
-        string fileExtension,
-        long fileSize,
-        FileAttachmentType fileType,
-        string? description,
-        string? checksum)
-    {
-        UploadedById = uploadedById;
-        EntityName = entityName;
-        EntityId = entityId;
-        FileName = fileName;
-        StoredFileName = storedFileName;
-        FilePath = filePath;
-        ContentType = contentType;
-        FileExtension = fileExtension;
-        FileSize = fileSize;
-        FileType = fileType;
-        Description = description;
-        Checksum = checksum;
-
-        Status = FileAttachmentStatus.Active;
-        UploadedAt = DateTime.UtcNow;
-        IsActive = true;
-    }
-
-
     public Guid UploadedById { get; private set; }
 
     public string EntityName { get; private set; } = null!;

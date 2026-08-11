@@ -2,35 +2,35 @@ namespace UAMS.Domain.Enums;
 
 public enum AuditAction
 {
-    Create = 1,
-    Update = 2,
-    Delete = 3,
-    Restore = 4,
+    Create,
+    Update,
+    Delete,
+    Restore,
 
-    Activate = 5,
-    Deactivate = 6,
+    Activate,
+    Deactivate,
 
-    Approve = 7,
-    Reject = 8,
-    Submit = 9,
-    Cancel = 10,
+    Approve,
+    Reject,
+    Submit,
+    Cancel,
 
-    Assign = 11,
-    Transfer = 12,
-    Return = 13,
+    Assign,
+    Transfer,
+    Return,
 
-    Generate = 14,
-    Login = 15,
-    Logout = 16,
+    Generate,
+    Login,
+    Logout,
 
-    PasswordChange = 17,
-    PasswordReset = 18,
+    PasswordChange,
+    PasswordReset,
 
-    Export = 19,
-    Import = 20,
+    Export,
+    Import,
 
-    Dispose = 21,
-    Maintenance = 22,
+    Dispose,
+    Maintenance,
 
-    Other = 99
+    Other
 }

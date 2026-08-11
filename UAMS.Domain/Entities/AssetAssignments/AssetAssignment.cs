@@ -12,33 +12,6 @@ public class AssetAssignment : AuditableEntity
     {
     }
 
-    public AssetAssignment(
-        string assignmentNumber,
-        Guid assetId,
-        Guid assetRequestId,
-        Guid employeeId,
-        Guid assignedById,
-        DateTime assignedDate,
-        DateTime? expectedReturnDate,
-        string? assignmentLocation,
-        AssetCondition conditionAtAssignment,
-        string? remarks)
-    {
-        AssignmentNumber = assignmentNumber;
-        AssetId = assetId;
-        AssetRequestId = assetRequestId;
-        EmployeeId = employeeId;
-        AssignedById = assignedById;
-        AssignedDate = assignedDate;
-        ExpectedReturnDate = expectedReturnDate;
-        AssignmentLocation = assignmentLocation;
-        ConditionAtAssignment = conditionAtAssignment;
-        Remarks = remarks;
-
-        Status = AssetAssignmentStatus.Active;
-        IsActive = true;
-    }
-
     public string AssignmentNumber { get; private set; } = null!;
 
     public Guid AssetId { get; private set; }
@@ -63,8 +36,6 @@ public class AssetAssignment : AuditableEntity
 
     public AssetAssignmentStatus Status { get; private set; }
 
-    public bool IsActive { get; private set; }
-
     public Asset Asset { get; private set; } = null!;
 
     public AssetRequest AssetRequest { get; private set; } = null!;
@@ -74,50 +45,5 @@ public class AssetAssignment : AuditableEntity
     public User AssignedBy { get; private set; } = null!;
 
 
-    public void Update(
-        DateTime? expectedReturnDate,
-        string? assignmentLocation,
-        string? remarks)
-    {
-        ExpectedReturnDate = expectedReturnDate;
-        AssignmentLocation = assignmentLocation;
-        Remarks = remarks;
-    }
 
-
-    public void Return(DateTime actualReturnDate)
-    {
-        ActualReturnDate = actualReturnDate;
-        Status = AssetAssignmentStatus.Returned;
-        IsActive = false;
-    }
-
-
-    public void MarkTransferred()
-    {
-        Status = AssetAssignmentStatus.Transferred;
-        IsActive = false;
-    }
-
-
-    public void Cancel()
-    {
-        Status = AssetAssignmentStatus.Cancelled;
-        IsActive = false;
-    }
-
-
-    public void Activate()
-    {
-        Status = AssetAssignmentStatus.Active;
-        IsActive = true;
-    }
-
-
-    public void MarkDeleted(Guid deletedBy)
-    {
-        IsDeleted = true;
-        DeletedAt = DateTime.UtcNow;
-        DeletedBy = deletedBy;
-    }
 }

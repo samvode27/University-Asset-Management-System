@@ -2,10 +2,10 @@ namespace UAMS.Domain.Enums;
 
 public enum BarcodeFormat
 {
-    Code128 = 1,
-    Code39 = 2,
-    EAN13 = 3,
-    EAN8 = 4,
-    UPC = 5,
-    ITF = 6
+    Code128,
+    Code39,
+    EAN13,
+    EAN8,
+    UPC,
+    ITF
 }

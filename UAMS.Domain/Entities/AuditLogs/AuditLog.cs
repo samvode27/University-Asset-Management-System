@@ -10,41 +10,6 @@ public class AuditLog : AuditableEntity
     {
     }
 
-    public AuditLog(
-        Guid? userId,
-        AuditAction action,
-        string entityName,
-        Guid? entityId,
-        string description,
-        AuditSeverity severity,
-        string? oldValues,
-        string? newValues,
-        string? changedProperties,
-        string? ipAddress,
-        string? userAgent,
-        string? requestId,
-        bool isSuccessful,
-        string? errorMessage)
-    {
-        UserId = userId;
-        Action = action;
-        EntityName = entityName;
-        EntityId = entityId;
-        Description = description;
-        Severity = severity;
-        OldValues = oldValues;
-        NewValues = newValues;
-        ChangedProperties = changedProperties;
-        IpAddress = ipAddress;
-        UserAgent = userAgent;
-        RequestId = requestId;
-        IsSuccessful = isSuccessful;
-        ErrorMessage = errorMessage;
-
-        Timestamp = DateTime.UtcNow;
-        IsActive = true;
-    }
-
 
     public Guid? UserId { get; private set; }
 
@@ -79,37 +44,4 @@ public class AuditLog : AuditableEntity
 
     public User? User { get; private set; }
 
-
-    public void UpdateDescription(string description)
-    {
-        Description = description;
-    }
-
-
-    public void UpdateSeverity(AuditSeverity severity)
-    {
-        Severity = severity;
-    }
-
-
-    public void MarkSuccessful()
-    {
-        IsSuccessful = true;
-        ErrorMessage = null;
-    }
-
-
-    public void MarkFailed(string errorMessage)
-    {
-        IsSuccessful = false;
-        ErrorMessage = errorMessage;
-    }
-
-
-    public void MarkDeleted(Guid deletedBy)
-    {
-        IsDeleted = true;
-        DeletedAt = DateTime.UtcNow;
-        DeletedBy = deletedBy;
-    }
 }

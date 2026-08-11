@@ -21,38 +21,6 @@ public class Asset : AuditableEntity
     {
     }
 
-    public Asset(
-        string assetTag,
-        string name,
-        string? description,
-        string? serialNumber,
-        string? model,
-        string? manufacturer,
-        Guid assetCategoryId,
-        Guid purchaseId,
-        decimal purchaseCost,
-        DateTime purchaseDate,
-        DateTime? warrantyExpiryDate,
-        string? location)
-    {
-        AssetTag = assetTag;
-        Name = name;
-        Description = description;
-        SerialNumber = serialNumber;
-        Model = model;
-        Manufacturer = manufacturer;
-        AssetCategoryId = assetCategoryId;
-        PurchaseId = purchaseId;
-        PurchaseCost = purchaseCost;
-        PurchaseDate = purchaseDate;
-        WarrantyExpiryDate = warrantyExpiryDate;
-        Location = location;
-
-        Status = AssetStatus.Available;
-        Condition = AssetCondition.New;
-        IsActive = true;
-    }
-
     public string AssetTag { get; private set; } = null!;
 
     public string Name { get; private set; } = null!;
@@ -107,8 +75,8 @@ public class Asset : AuditableEntity
 
     public ICollection<DamageReport> DamageReports { get; private set; }
         = new List<DamageReport>();
-
-    public ICollection<Maintenance> Maintenance
+    
+    public ICollection<Maintenance> Maintenances
         { get; private set; }
         = new List<Maintenance>();
 
@@ -117,139 +85,4 @@ public class Asset : AuditableEntity
         = new List<AssetDisposal>();
 
 
-    public void UpdateInformation(
-        string assetTag,
-        string name,
-        string? description,
-        string? serialNumber,
-        string? model,
-        string? manufacturer,
-        Guid assetCategoryId,
-        string? location,
-        DateTime? warrantyExpiryDate)
-    {
-        AssetTag = assetTag;
-        Name = name;
-        Description = description;
-        SerialNumber = serialNumber;
-        Model = model;
-        Manufacturer = manufacturer;
-        AssetCategoryId = assetCategoryId;
-        Location = location;
-        WarrantyExpiryDate = warrantyExpiryDate;
-    }
-
-
-    public void UpdateLocation(string? location)
-    {
-        Location = location;
-    }
-
-
-    public void UpdateCondition(AssetCondition condition)
-    {
-        Condition = condition;
-    }
-
-
-    public void MarkAvailable()
-    {
-        Status = AssetStatus.Available;
-    }
-
-
-    public void MarkRequested()
-    {
-        Status = AssetStatus.Requested;
-    }
-
-
-    public void MarkPendingDepartmentApproval()
-    {
-        Status = AssetStatus.PendingDepartmentApproval;
-    }
-
-
-    public void MarkPendingAssetManagerApproval()
-    {
-        Status = AssetStatus.PendingAssetManagerApproval;
-    }
-
-
-    public void Assign()
-    {
-        Status = AssetStatus.Assigned;
-    }
-
-
-    public void MarkInUse()
-    {
-        Status = AssetStatus.InUse;
-    }
-
-
-    public void MarkTransferPending()
-    {
-        Status = AssetStatus.TransferPending;
-    }
-
-
-    public void MarkReturnPending()
-    {
-        Status = AssetStatus.ReturnPending;
-    }
-
-
-    public void MarkDamaged()
-    {
-        Status = AssetStatus.Damaged;
-        Condition = AssetCondition.Damaged;
-    }
-
-
-    public void MarkUnderMaintenance()
-    {
-        Status = AssetStatus.UnderMaintenance;
-    }
-
-
-    public void MarkRepaired()
-    {
-        Status = AssetStatus.Available;
-        Condition = AssetCondition.Good;
-    }
-
-
-    public void MarkUnrepairable()
-    {
-        Status = AssetStatus.Unrepairable;
-        Condition = AssetCondition.Unrepairable;
-    }
-
-
-    public void MarkDisposed()
-    {
-        Status = AssetStatus.Disposed;
-        IsActive = false;
-    }
-
-
-    public void Activate()
-    {
-        IsActive = true;
-    }
-
-
-    public void Deactivate()
-    {
-        IsActive = false;
-    }
-
-
-    public void MarkDeleted(Guid deletedBy)
-    {
-        IsDeleted = true;
-        DeletedAt = DateTime.UtcNow;
-        DeletedBy = deletedBy;
-    }
 }

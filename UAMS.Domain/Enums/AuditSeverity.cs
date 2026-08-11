@@ -2,7 +2,7 @@ namespace UAMS.Domain.Enums;
 
 public enum AuditSeverity
 {
-    Information = 1,
-    Warning = 2,
-    Critical = 3
+    Information,
+    Warning,
+    Critical
 }

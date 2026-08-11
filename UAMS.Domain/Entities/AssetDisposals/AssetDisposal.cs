@@ -12,31 +12,6 @@ public class AssetDisposal : AuditableEntity
     {
     }
 
-    public AssetDisposal(
-        string disposalNumber,
-        Guid assetId,
-        Guid? maintenanceId,
-        Guid requestedById,
-        string reason,
-        decimal? bookValue,
-        decimal? estimatedValue,
-        DateTime requestedDate,
-        string? remarks)
-    {
-        DisposalNumber = disposalNumber;
-        AssetId = assetId;
-        MaintenanceId = maintenanceId;
-        RequestedById = requestedById;
-        Reason = reason;
-        BookValue = bookValue;
-        EstimatedValue = estimatedValue;
-        RequestedDate = requestedDate;
-        Remarks = remarks;
-
-        Status = AssetDisposalStatus.Requested;
-        IsActive = true;
-    }
-
     public string DisposalNumber { get; private set; } = null!;
 
     public Guid AssetId { get; private set; }
@@ -81,76 +56,4 @@ public class AssetDisposal : AuditableEntity
     public User? CompletedBy { get; private set; }
 
 
-    public void Update(
-        string reason,
-        decimal? bookValue,
-        decimal? estimatedValue,
-        string? remarks)
-    {
-        Reason = reason;
-        BookValue = bookValue;
-        EstimatedValue = estimatedValue;
-        Remarks = remarks;
-    }
-
-
-    public void StartReview()
-    {
-        Status = AssetDisposalStatus.UnderReview;
-    }
-
-
-    public void Approve(
-        Guid approvedById,
-        DisposalMethod disposalMethod)
-    {
-        ApprovedById = approvedById;
-        ApprovedDate = DateTime.UtcNow;
-        DisposalMethod = disposalMethod;
-
-        Status = AssetDisposalStatus.Approved;
-    }
-
-
-    public void Reject(string reason)
-    {
-        Remarks = reason;
-        Status = AssetDisposalStatus.Rejected;
-    }
-
-
-    public void Complete(
-        Guid completedById,
-        decimal? disposalValue,
-        string? remarks)
-    {
-        CompletedById = completedById;
-        DisposalValue = disposalValue;
-        DisposalDate = DateTime.UtcNow;
-        Remarks = remarks;
-
-        Status = AssetDisposalStatus.Completed;
-    }
-
-
-    public void Cancel()
-    {
-        Status = AssetDisposalStatus.Cancelled;
-        IsActive = false;
-    }
-
-
-    public void Activate()
-    {
-        Status = AssetDisposalStatus.Requested;
-        IsActive = true;
-    }
-
-
-    public void MarkDeleted(Guid deletedBy)
-    {
-        IsDeleted = true;
-        DeletedAt = DateTime.UtcNow;
-        DeletedBy = deletedBy;
-    }
 }
