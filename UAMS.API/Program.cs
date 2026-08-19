@@ -1,4 +1,6 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using UAMS.Application;
 using UAMS.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +29,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+
+// ================================================================
+// Validators
+// ================================================================
+
+builder.Services.AddValidatorsFromAssembly(
+    typeof(AssemblyReference).Assembly);
 
 // ================================================================
 // HTTP Request Pipeline

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS\\UAMS.Domain\\UAMS.Domain.csproj": {}
+    "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS - Copy\\UAMS.Domain\\UAMS.Domain.csproj": {}
   },
   "projects": {
-    "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS\\UAMS.Domain\\UAMS.Domain.csproj": {
+    "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS - Copy\\UAMS.Domain\\UAMS.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS\\UAMS.Domain\\UAMS.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS - Copy\\UAMS.Domain\\UAMS.Domain.csproj",
         "projectName": "UAMS.Domain",
-        "projectPath": "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS\\UAMS.Domain\\UAMS.Domain.csproj",
+        "projectPath": "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS - Copy\\UAMS.Domain\\UAMS.Domain.csproj",
         "packagesPath": "C:\\Users\\setar\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS\\UAMS.Domain\\obj\\",
+        "outputPath": "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS - Copy\\UAMS.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\setar\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -61,7 +61,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.303/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
