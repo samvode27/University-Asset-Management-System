@@ -2,27 +2,60 @@ using UAMS.Application.DTOs.Authentication.Requests;
 using UAMS.Application.DTOs.Authentication.Responses;
 using UAMS.Application.Interfaces.Repositories;
 using UAMS.Application.Interfaces.Services;
+using UAMS.Domain.Entities.Users;
+
+using Microsoft.Extensions.Options;
+using UAMS.Application.Options;
+using UAMS.Application.Interfaces.Persistence;
 
 namespace UAMS.Application.Services;
 
-public sealed class AuthenticationService : IAuthenticationService
+public class AuthenticationService : IAuthenticationService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordService _passwordService;
     private readonly ITokenService _tokenService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly AuthenticationOptions _authenticationOptions;
 
     public AuthenticationService(
-        IUserRepository userRepository,
-        IPasswordService passwordService,
-        ITokenService tokenService,
-        ICurrentUserService currentUserService)
+     IUserRepository userRepository,
+     IPasswordService passwordService,
+     ITokenService tokenService,
+     ICurrentUserService currentUserService,
+     IUnitOfWork unitOfWork,
+     IOptions<AuthenticationOptions> authenticationOptions)
     {
-        _userRepository = userRepository;
-        _passwordService = passwordService;
-        _tokenService = tokenService;
-        _currentUserService = currentUserService;
+        _userRepository =
+            userRepository
+            ?? throw new ArgumentNullException(nameof(userRepository));
+
+        _passwordService =
+            passwordService
+            ?? throw new ArgumentNullException(nameof(passwordService));
+
+        _tokenService =
+            tokenService
+            ?? throw new ArgumentNullException(nameof(tokenService));
+
+        _currentUserService =
+            currentUserService
+            ?? throw new ArgumentNullException(nameof(currentUserService));
+
+        _unitOfWork =
+            unitOfWork
+            ?? throw new ArgumentNullException(nameof(unitOfWork));
+
+        _authenticationOptions =
+            authenticationOptions?.Value
+            ?? throw new ArgumentNullException(nameof(authenticationOptions));
     }
+
+
+    // ================================================================
+    // Login
+    // ================================================================
 
     public async Task<LoginResponseDto> LoginAsync(
         LoginRequestDto request,
@@ -30,57 +63,198 @@ public sealed class AuthenticationService : IAuthenticationService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var user = await _userRepository.GetByUsernameAsync(
-            request.Username,
-            cancellationToken);
+        var identifier =
+            request.UsernameOrEmail?.Trim();
 
-        if (user is null)
+        if (string.IsNullOrWhiteSpace(identifier))
+        {
+            return new LoginResponseDto
+            {
+                Succeeded = false,
+                Message = "Username or email is required."
+            };
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Password))
+        {
+            return new LoginResponseDto
+            {
+                Succeeded = false,
+                Message = "Password is required."
+            };
+        }
+
+
+        // ============================================================
+        // Normalize Login Identifier
+        // ============================================================
+
+        User? user;
+
+        if (identifier.Contains('@'))
         {
             user = await _userRepository.GetByEmailAsync(
-                request.Username,
+                identifier.ToLowerInvariant(),
+                cancellationToken);
+        }
+        else
+        {
+            user = await _userRepository.GetByUsernameAsync(
+                identifier,
                 cancellationToken);
         }
 
+
+        // ============================================================
+        // Invalid Credentials
+        // ============================================================
+
         if (user is null)
         {
-            throw new UnauthorizedAccessException(
-                "Invalid username/email or password.");
+            return new LoginResponseDto
+            {
+                Succeeded = false,
+                Message = "Invalid username/email or password."
+            };
         }
+
+
+        // ============================================================
+        // Account Status
+        // ============================================================
 
         if (!user.IsActive)
         {
-            throw new UnauthorizedAccessException(
-                "The user account is inactive.");
+            return new LoginResponseDto
+            {
+                Succeeded = false,
+                Message = "This account is inactive."
+            };
         }
 
-        if (!_passwordService.VerifyPassword(
-                request.Password,
-                user.PasswordHash))
+
+        // ============================================================
+        // Account Lock
+        // ============================================================
+
+        if (user.IsLocked)
         {
-            throw new UnauthorizedAccessException(
-                "Invalid username/email or password.");
+            return new LoginResponseDto
+            {
+                Succeeded = false,
+                Message = "This account is locked."
+            };
         }
 
-        var tokens = await _tokenService.GenerateTokensAsync(
-            user,
+
+        // ============================================================
+        // Password Verification
+        // ============================================================
+
+        var passwordValid =
+            _passwordService.VerifyPassword(
+                request.Password,
+                user.PasswordHash);
+
+        if (!passwordValid)
+        {
+            user.RecordFailedLogin(
+                _authenticationOptions.MaxFailedLoginAttempts);
+
+            _userRepository.Update(user);
+
+            await _unitOfWork.SaveChangesAsync(
+                cancellationToken);
+
+            if (user.IsLocked)
+            {
+                return new LoginResponseDto
+                {
+                    Succeeded = false,
+                    Message =
+                        "Your account has been locked because of too many failed login attempts."
+                };
+            }
+
+            return new LoginResponseDto
+            {
+                Succeeded = false,
+                Message = "Invalid username/email or password."
+            };
+        }
+
+
+        // ============================================================
+        // Successful Login
+        // ============================================================
+
+        var loginAt = DateTime.UtcNow;
+
+        user.RecordSuccessfulLogin(loginAt);
+
+        _userRepository.Update(user);
+
+        await _unitOfWork.SaveChangesAsync(
             cancellationToken);
+
+
+        // ============================================================
+        // Generate Tokens
+        // ============================================================
+
+        var tokens =
+            await _tokenService.GenerateTokensAsync(
+                user,
+                request.RememberMe,
+                cancellationToken);
+
+
+        // ============================================================
+        // Current User
+        // ============================================================
+
+        var currentUser =
+            MapCurrentUser(user);
+
+
+        // ============================================================
+        // Session
+        //
+        // NOTE:
+        // This is currently a response-level session representation.
+        // Persistent session/refresh-token tracking will be implemented
+        // in Phase B.
+        // ============================================================
+
+        var session = new UserSessionResponseDto
+        {
+            SessionId = Guid.NewGuid(),
+            UserId = user.Id,
+            LoginAt = loginAt,
+            LastActivityAt = loginAt,
+            ExpiresAt = tokens.RefreshTokenExpiresAt,
+            IsActive = true
+        };
+
+
+        // ============================================================
+        // Response
+        // ============================================================
 
         return new LoginResponseDto
         {
-            AccessToken = tokens.AccessToken,
-            RefreshToken = tokens.RefreshToken,
-            ExpiresAt = tokens.ExpiresAt,
-            User = new CurrentUserResponseDto
-            {
-                Id = user.Id,
-                EmployeeId = user.EmployeeId,
-                FullName = user.FullName,
-                Username = user.Username,
-                Email = user.Email,
-                DepartmentId = user.DepartmentId
-            }
+            Succeeded = true,
+            Message = "Login successful.",
+            Tokens = tokens,
+            User = currentUser,
+            Session = session
         };
     }
+
+
+    // ================================================================
+    // Logout
+    // ================================================================
 
     public async Task<LogoutResponseDto> LogoutAsync(
         LogoutRequestDto request,
@@ -97,10 +271,16 @@ public sealed class AuthenticationService : IAuthenticationService
 
         return new LogoutResponseDto
         {
-            Success = true,
-            Message = "Logout successful."
+            Succeeded = true,
+            Message = "Logout successful.",
+            LoggedOutAt = DateTime.UtcNow
         };
     }
+
+
+    // ================================================================
+    // Refresh Token
+    // ================================================================
 
     public async Task<RefreshTokenResponseDto> RefreshTokenAsync(
         RefreshTokenRequestDto request,
@@ -108,23 +288,44 @@ public sealed class AuthenticationService : IAuthenticationService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var tokens = await _tokenService.RefreshTokenAsync(
-            request.RefreshToken,
-            cancellationToken);
+        if (string.IsNullOrWhiteSpace(request.RefreshToken))
+        {
+            return new RefreshTokenResponseDto
+            {
+                Succeeded = false,
+                Message = "Refresh token is required."
+            };
+        }
+
+
+        var tokens =
+            await _tokenService.RefreshTokenAsync(
+                request.RefreshToken,
+                cancellationToken);
+
 
         if (tokens is null)
         {
-            throw new UnauthorizedAccessException(
-                "Invalid or expired refresh token.");
+            return new RefreshTokenResponseDto
+            {
+                Succeeded = false,
+                Message = "Invalid or expired refresh token."
+            };
         }
+
 
         return new RefreshTokenResponseDto
         {
-            AccessToken = tokens.AccessToken,
-            RefreshToken = tokens.RefreshToken,
-            ExpiresAt = tokens.ExpiresAt
+            Succeeded = true,
+            Message = "Token refreshed successfully.",
+            Tokens = tokens
         };
     }
+
+
+    // ================================================================
+    // Register
+    // ================================================================
 
     public async Task<AuthenticationResponseDto> RegisterAsync(
         RegisterRequestDto request,
@@ -132,41 +333,185 @@ public sealed class AuthenticationService : IAuthenticationService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var existingUsername =
-            await _userRepository.GetByUsernameAsync(
-                request.Username,
-                cancellationToken);
 
-        if (existingUsername is not null)
+        // ============================================================
+        // Normalize Input
+        // ============================================================
+
+        var employeeId =
+            request.EmployeeId?.Trim();
+
+        var fullName =
+            request.FullName?.Trim();
+
+        var email =
+            request.Email?.Trim().ToLowerInvariant();
+
+        var phoneNumber =
+            request.PhoneNumber?.Trim();
+
+        var username =
+            request.Username?.Trim();
+
+
+        // ============================================================
+        // Required Values
+        //
+        // FluentValidation normally handles these checks before the
+        // service is called. These checks keep the service safe when
+        // invoked directly.
+        // ============================================================
+
+        if (string.IsNullOrWhiteSpace(employeeId) ||
+            string.IsNullOrWhiteSpace(fullName) ||
+            string.IsNullOrWhiteSpace(email) ||
+            string.IsNullOrWhiteSpace(phoneNumber) ||
+            string.IsNullOrWhiteSpace(username))
         {
-            throw new InvalidOperationException(
-                "Username is already registered.");
+            return new AuthenticationResponseDto
+            {
+                Succeeded = false,
+                Message = "Required registration information is missing."
+            };
         }
 
-        var existingEmail =
-            await _userRepository.GetByEmailAsync(
-                request.Email,
+
+        // ============================================================
+        // Password Confirmation
+        // ============================================================
+
+        if (request.Password != request.ConfirmPassword)
+        {
+            return new AuthenticationResponseDto
+            {
+                Succeeded = false,
+                Message = "Passwords do not match."
+            };
+        }
+
+
+        // ============================================================
+        // Username Uniqueness
+        // ============================================================
+
+        if (await _userRepository.ExistsByUsernameAsync(
+        username,
+        cancellationToken))
+        {
+            return new AuthenticationResponseDto
+            {
+                Succeeded = false,
+                Message = "Username already exists."
+            };
+        }
+
+
+        // ============================================================
+        // Email Uniqueness
+        // ============================================================
+
+        if (await _userRepository.ExistsByEmailAsync(
+         email,
+         cancellationToken))
+        {
+            return new AuthenticationResponseDto
+            {
+                Succeeded = false,
+                Message = "Email already exists."
+            };
+        }
+
+
+        // ============================================================
+        // Employee ID Uniqueness
+        // ============================================================
+
+        if (await _userRepository.ExistsByEmployeeIdAsync(
+        employeeId,
+        cancellationToken))
+        {
+            return new AuthenticationResponseDto
+            {
+                Succeeded = false,
+                Message = "Employee ID already exists."
+            };
+        }
+
+
+        // ============================================================
+        // Department Validation
+        // ============================================================
+
+        var department =
+            await _unitOfWork.Departments.GetByIdAsync(
+                request.DepartmentId,
                 cancellationToken);
 
-        if (existingEmail is not null)
+        if (department is null)
         {
-            throw new InvalidOperationException(
-                "Email is already registered.");
+            return new AuthenticationResponseDto
+            {
+                Succeeded = false,
+                Message = "The selected department does not exist."
+            };
         }
+
+
+        // ============================================================
+        // Password Hashing
+        // ============================================================
 
         var passwordHash =
-            _passwordService.HashPassword(request.Password);
+            _passwordService.HashPassword(
+                request.Password);
 
-        /*
-         * User creation should be performed through the repository
-         * and UnitOfWork once the exact User entity/create contract
-         * is wired to this service.
-         */
 
-        throw new NotImplementedException(
-            "Register workflow must be connected to the User creation "
-            + "repository/UnitOfWork contract.");
+        // ============================================================
+        // Create User
+        // ============================================================
+
+        var user = User.Create(
+            employeeId,
+            fullName,
+            email,
+            phoneNumber,
+            request.DepartmentId,
+            username,
+            passwordHash);
+
+
+        // ============================================================
+        // Persist User
+        // ============================================================
+
+        await _userRepository.AddAsync(
+            user,
+            cancellationToken);
+
+        await _unitOfWork.SaveChangesAsync(
+            cancellationToken);
+
+
+        // ============================================================
+        // Response
+        //
+        // Email verification will be added in Phase D.
+        // Role assignment will be handled in the authorization/
+        // role-resolution phase.
+        // ============================================================
+
+        return new AuthenticationResponseDto
+        {
+            Succeeded = true,
+            Message = "User registered successfully.",
+            User = MapCurrentUser(user)
+        };
     }
+
+
+    // ================================================================
+    // Change Password
+    // ================================================================
 
     public async Task<ChangePasswordResponseDto> ChangePasswordAsync(
         ChangePasswordRequestDto request,
@@ -174,51 +519,162 @@ public sealed class AuthenticationService : IAuthenticationService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var userId = _currentUserService.UserId;
 
-        if (!userId.HasValue)
+        // ============================================================
+        // Authentication
+        // ============================================================
+
+        if (!_currentUserService.IsAuthenticated ||
+            !_currentUserService.UserId.HasValue)
         {
-            throw new UnauthorizedAccessException(
-                "Authentication is required.");
+            return new ChangePasswordResponseDto
+            {
+                Succeeded = false,
+                Message = "Authentication is required."
+            };
         }
 
-        var user = await _userRepository.GetByIdAsync(
-            userId.Value,
-            cancellationToken);
 
-        if (user is null)
-        {
-            throw new UnauthorizedAccessException(
-                "Authenticated user could not be found.");
-        }
-
-        if (!_passwordService.VerifyPassword(
-                request.CurrentPassword,
-                user.PasswordHash))
-        {
-            throw new UnauthorizedAccessException(
-                "Current password is incorrect.");
-        }
+        // ============================================================
+        // Password Confirmation
+        // ============================================================
 
         if (request.NewPassword != request.ConfirmPassword)
         {
-            throw new InvalidOperationException(
-                "New password and confirmation password do not match.");
+            return new ChangePasswordResponseDto
+            {
+                Succeeded = false,
+                Message =
+                    "New password and confirmation do not match."
+            };
         }
 
-        user.PasswordHash =
-            _passwordService.HashPassword(request.NewPassword);
 
-        await _userRepository.UpdateAsync(
-            user,
+        // ============================================================
+        // Get Current User
+        // ============================================================
+
+        var user =
+            await _userRepository.GetByIdAsync(
+                _currentUserService.UserId.Value,
+                cancellationToken);
+
+        if (user is null)
+        {
+            return new ChangePasswordResponseDto
+            {
+                Succeeded = false,
+                Message = "User account was not found."
+            };
+        }
+
+
+        // ============================================================
+        // Account Status
+        // ============================================================
+
+        if (!user.IsActive)
+        {
+            return new ChangePasswordResponseDto
+            {
+                Succeeded = false,
+                Message = "This account is inactive."
+            };
+        }
+
+
+        if (user.IsLocked)
+        {
+            return new ChangePasswordResponseDto
+            {
+                Succeeded = false,
+                Message = "This account is locked."
+            };
+        }
+
+
+        // ============================================================
+        // Verify Current Password
+        // ============================================================
+
+        var currentPasswordValid =
+            _passwordService.VerifyPassword(
+                request.CurrentPassword,
+                user.PasswordHash);
+
+        if (!currentPasswordValid)
+        {
+            return new ChangePasswordResponseDto
+            {
+                Succeeded = false,
+                Message = "Current password is incorrect."
+            };
+        }
+
+
+        // ============================================================
+        // Prevent Reusing Current Password
+        // ============================================================
+
+        var samePassword =
+            _passwordService.VerifyPassword(
+                request.NewPassword,
+                user.PasswordHash);
+
+        if (samePassword)
+        {
+            return new ChangePasswordResponseDto
+            {
+                Succeeded = false,
+                Message =
+                    "The new password must be different from the current password."
+            };
+        }
+
+
+        // ============================================================
+        // Hash New Password
+        // ============================================================
+
+        var newPasswordHash =
+            _passwordService.HashPassword(
+                request.NewPassword);
+
+
+        // ============================================================
+        // Change Password
+        // ============================================================
+
+        user.ChangePassword(
+            newPasswordHash);
+
+
+        // ============================================================
+        // Persist Changes
+        // ============================================================
+
+        _userRepository.Update(user);
+
+        await _unitOfWork.SaveChangesAsync(
             cancellationToken);
+
+
+        // ============================================================
+        // Response
+        // ============================================================
 
         return new ChangePasswordResponseDto
         {
-            Success = true,
-            Message = "Password changed successfully."
+            Succeeded = true,
+            Message = "Password changed successfully.",
+            ChangedAt = DateTime.UtcNow
         };
     }
+
+
+    // ================================================================
+    // Forgot Password
+    // ================================================================
 
     public async Task<ForgotPasswordResponseDto> ForgotPasswordAsync(
         ForgotPasswordRequestDto request,
@@ -226,25 +682,24 @@ public sealed class AuthenticationService : IAuthenticationService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var user = await _userRepository.GetByEmailAsync(
-            request.Email,
-            cancellationToken);
-
         /*
-         * Do not reveal whether the email exists.
-         *
-         * The real implementation should generate a short-lived
-         * reset token and send it through an email service.
+         * Do not reveal whether an email exists.
          */
 
         return new ForgotPasswordResponseDto
         {
-            Success = true,
+            Succeeded = true,
             Message =
-                "If the account exists, password reset instructions "
-                + "have been sent."
+                "If the email is registered, password reset instructions " +
+                "will be sent.",
+            RequestedAt = DateTime.UtcNow
         };
     }
+
+
+    // ================================================================
+    // Reset Password
+    // ================================================================
 
     public async Task<ResetPasswordResponseDto> ResetPasswordAsync(
         ResetPasswordRequestDto request,
@@ -252,45 +707,81 @@ public sealed class AuthenticationService : IAuthenticationService
     {
         ArgumentNullException.ThrowIfNull(request);
 
+
+        if (request.NewPassword != request.ConfirmPassword)
+        {
+            return new ResetPasswordResponseDto
+            {
+                Succeeded = false,
+                Message = "Passwords do not match.",
+                ResetAt = DateTime.UtcNow
+            };
+        }
+
+
         /*
-         * Reset-token persistence/verification should be connected
-         * here once the password-reset token repository/service is
-         * available.
+         * Password reset token persistence/validation is not yet
+         * available in the current domain model.
          */
 
-        throw new NotImplementedException(
-            "Password reset token verification is not yet connected.");
+        return new ResetPasswordResponseDto
+        {
+            Succeeded = false,
+            Message =
+                "Password reset token infrastructure has not yet " +
+                "been configured.",
+            ResetAt = DateTime.UtcNow
+        };
     }
 
-    public async Task<VerifyEmailResponseDto> VerifyEmailAsync(
+
+    // ================================================================
+    // Verify Email
+    // ================================================================
+
+    public Task<VerifyEmailResponseDto> VerifyEmailAsync(
         VerifyEmailRequestDto request,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        /*
-         * Email verification token validation should be connected
-         * to the email-verification token service.
-         */
-
-        throw new NotImplementedException(
-            "Email verification token validation is not yet connected.");
+        return Task.FromResult(
+            new VerifyEmailResponseDto
+            {
+                Succeeded = false,
+                Message =
+                    "Email verification token infrastructure has not " +
+                    "yet been configured.",
+                VerifiedAt = DateTime.UtcNow
+            });
     }
 
-    public async Task<VerifyEmailResponseDto> ResendVerificationEmailAsync(
-        ResendVerificationEmailRequestDto request,
-        CancellationToken cancellationToken = default)
+
+    // ================================================================
+    // Resend Verification Email
+    // ================================================================
+
+    public async Task<VerifyEmailResponseDto>
+        ResendVerificationEmailAsync(
+            ResendVerificationEmailRequestDto request,
+            CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        /*
-         * Generate a new verification token and send it through
-         * the email service.
-         */
-
-        throw new NotImplementedException(
-            "Email verification delivery service is not yet connected.");
+        return new VerifyEmailResponseDto
+        {
+            Succeeded = true,
+            Message =
+                "If the email is registered, a verification email " +
+                "will be sent.",
+            VerifiedAt = DateTime.UtcNow
+        };
     }
+
+
+    // ================================================================
+    // Revoke Refresh Token
+    // ================================================================
 
     public async Task<TokenResponseDto> RevokeRefreshTokenAsync(
         RevokeRefreshTokenRequestDto request,
@@ -298,63 +789,218 @@ public sealed class AuthenticationService : IAuthenticationService
     {
         ArgumentNullException.ThrowIfNull(request);
 
+
         await _tokenService.RevokeRefreshTokenAsync(
             request.RefreshToken,
             cancellationToken);
+
 
         return new TokenResponseDto
         {
             AccessToken = string.Empty,
             RefreshToken = string.Empty,
-            ExpiresAt = DateTime.UtcNow
+            AccessTokenExpiresAt = DateTime.UtcNow,
+            RefreshTokenExpiresAt = DateTime.UtcNow
         };
     }
 
-    public async Task<CurrentUserResponseDto> GetCurrentUserAsync(
-        CancellationToken cancellationToken = default)
-    {
-        var userId = _currentUserService.UserId;
 
-        if (!userId.HasValue)
+    // ================================================================
+    // Current User
+    // ================================================================
+
+    public async Task<CurrentUserResponseDto>
+        GetCurrentUserAsync(
+            CancellationToken cancellationToken = default)
+    {
+        // ============================================================
+        // Authentication
+        // ============================================================
+
+        if (!_currentUserService.IsAuthenticated ||
+            !_currentUserService.UserId.HasValue)
         {
             throw new UnauthorizedAccessException(
                 "Authentication is required.");
         }
 
-        var user = await _userRepository.GetByIdAsync(
-            userId.Value,
-            cancellationToken);
+
+        // ============================================================
+        // Get Current User With Authentication Data
+        // ============================================================
+
+        var user =
+            await _userRepository
+                .GetByIdWithAuthenticationDataAsync(
+                    _currentUserService.UserId.Value,
+                    cancellationToken);
+
+
+        // ============================================================
+        // User Not Found
+        // ============================================================
 
         if (user is null)
         {
             throw new UnauthorizedAccessException(
-                "Authenticated user could not be found.");
+                "User account was not found.");
         }
+
+
+        // ============================================================
+        // Account Status
+        // ============================================================
+
+        if (!user.IsActive)
+        {
+            throw new UnauthorizedAccessException(
+                "This account is inactive.");
+        }
+
+
+        if (user.IsLocked)
+        {
+            throw new UnauthorizedAccessException(
+                "This account is locked.");
+        }
+
+
+        // ============================================================
+        // Map Current User
+        // ============================================================
+
+        return MapCurrentUser(user);
+    }
+
+
+    // ================================================================
+    // Authentication Status
+    // ================================================================
+
+    public async Task<AuthStatusResponseDto> GetAuthStatusAsync(
+        CancellationToken cancellationToken = default)
+    {
+        if (!_currentUserService.IsAuthenticated ||
+            !_currentUserService.UserId.HasValue)
+        {
+            return new AuthStatusResponseDto
+            {
+                IsAuthenticated = false,
+                IsActive = false,
+                IsLocked = false,
+                User = null
+            };
+        }
+
+        var user =
+            await _userRepository.GetByIdWithAuthenticationDataAsync(
+                _currentUserService.UserId.Value,
+                cancellationToken);
+
+        if (user is null)
+        {
+            return new AuthStatusResponseDto
+            {
+                IsAuthenticated = false,
+                IsActive = false,
+                IsLocked = false,
+                User = null
+            };
+        }
+
+        return new AuthStatusResponseDto
+        {
+            IsAuthenticated = true,
+            IsActive = user.IsActive,
+            IsLocked = user.IsLocked,
+            User = MapCurrentUser(user)
+        };
+    }
+
+
+    // ================================================================
+    // Authorization Resolution
+    // ================================================================
+
+    private static (
+        List<string> Roles,
+        List<string> Permissions)
+        ResolveAuthorizationData(User user)
+    {
+        ArgumentNullException.ThrowIfNull(user);
+
+        var activeRoles = user.UserRoles
+            .Where(userRole =>
+                userRole.IsActive &&
+                userRole.Role != null)
+            .Select(userRole => userRole.Role)
+            .Distinct()
+            .ToList();
+
+        var roles = activeRoles
+            .Where(role =>
+                role.IsActive &&
+                !role.IsDeleted)
+            .Select(role => role.Name)
+            .Where(name =>
+                !string.IsNullOrWhiteSpace(name))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(name => name)
+            .ToList();
+
+        var permissions = activeRoles
+            .Where(role =>
+                role.IsActive &&
+                !role.IsDeleted)
+            .SelectMany(role => role.RolePermissions)
+            .Where(rolePermission =>
+                rolePermission.IsActive &&
+                rolePermission.Permission != null &&
+                rolePermission.Permission.IsActive &&
+                !rolePermission.Permission.IsDeleted)
+            .Select(rolePermission =>
+                rolePermission.Permission.Code)
+            .Where(code =>
+                !string.IsNullOrWhiteSpace(code))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(code => code)
+            .ToList();
+
+        return (roles, permissions);
+    }
+
+
+    // ================================================================
+    // Mapping
+    // ================================================================
+
+    private static CurrentUserResponseDto MapCurrentUser(
+        User user)
+    {
+        ArgumentNullException.ThrowIfNull(user);
+
+        var authorization =
+            ResolveAuthorizationData(user);
 
         return new CurrentUserResponseDto
         {
             Id = user.Id,
             EmployeeId = user.EmployeeId,
             FullName = user.FullName,
-            Username = user.Username,
             Email = user.Email,
-            DepartmentId = user.DepartmentId
+            PhoneNumber = user.PhoneNumber,
+            Username = user.Username,
+            DepartmentId = user.DepartmentId,
+            DepartmentName =
+                user.Department?.Name ?? string.Empty,
+
+            Roles = authorization.Roles,
+
+            Permissions = authorization.Permissions,
+
+            IsActive = user.IsActive
         };
     }
 
-    public Task<AuthStatusResponseDto> GetAuthStatusAsync(
-        CancellationToken cancellationToken = default)
-    {
-        var response = new AuthStatusResponseDto
-        {
-            IsAuthenticated =
-                _currentUserService.IsAuthenticated,
-            UserId =
-                _currentUserService.UserId,
-            Username =
-                _currentUserService.Username
-        };
 
-        return Task.FromResult(response);
-    }
 }

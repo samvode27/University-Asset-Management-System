@@ -14,17 +14,17 @@ C:\Users\setar\OneDrive\Desktop\UAMS\UAMS.Application\obj\Debug\net10.0\UAMS.App
 C:\Users\setar\OneDrive\Desktop\UAMS\UAMS.Application\obj\Debug\net10.0\refint\UAMS.Application.dll
 C:\Users\setar\OneDrive\Desktop\UAMS\UAMS.Application\obj\Debug\net10.0\UAMS.Application.pdb
 C:\Users\setar\OneDrive\Desktop\UAMS\UAMS.Application\obj\Debug\net10.0\ref\UAMS.Application.dll
+C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\bin\Debug\net10.0\UAMS.Application.deps.json
+C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\bin\Debug\net10.0\UAMS.Application.dll
+C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\bin\Debug\net10.0\UAMS.Application.pdb
+C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\bin\Debug\net10.0\UAMS.Domain.dll
+C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\bin\Debug\net10.0\UAMS.Domain.pdb
 C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\obj\Debug\net10.0\UAMS.Application.csproj.AssemblyReference.cache
 C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\obj\Debug\net10.0\UAMS.Application.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\obj\Debug\net10.0\UAMS.Application.AssemblyInfoInputs.cache
 C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\obj\Debug\net10.0\UAMS.Application.AssemblyInfo.cs
 C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\obj\Debug\net10.0\UAMS.Application.csproj.CoreCompileInputs.cache
 C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\obj\Debug\net10.0\UAMS.Application.sourcelink.json
-C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\bin\Debug\net10.0\UAMS.Application.deps.json
-C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\bin\Debug\net10.0\UAMS.Application.dll
-C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\bin\Debug\net10.0\UAMS.Application.pdb
-C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\bin\Debug\net10.0\UAMS.Domain.dll
-C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\bin\Debug\net10.0\UAMS.Domain.pdb
 C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\obj\Debug\net10.0\UAMS.App.F420DCCF.Up2Date
 C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\obj\Debug\net10.0\UAMS.Application.dll
 C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Application\obj\Debug\net10.0\refint\UAMS.Application.dll

@@ -7,6 +7,7 @@ public interface ITokenService
 {
     Task<TokenResponseDto> GenerateTokensAsync(
         User user,
+        bool rememberMe,
         CancellationToken cancellationToken = default);
 
     Task<TokenResponseDto?> RefreshTokenAsync(

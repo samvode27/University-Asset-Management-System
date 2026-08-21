@@ -19,6 +19,33 @@ public interface IUserRepository : IRepository<User>
     Task<User?> GetByEmployeeIdAsync(
         string employeeId,
         CancellationToken cancellationToken = default);
+    Task<User?> GetByIdWithAuthenticationDataAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsByUsernameAsync(
+        string username,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsByEmailAsync(
+        string email,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsByEmployeeIdAsync(
+        string employeeId,
+        CancellationToken cancellationToken = default);
+
+    // ================================================================
+    // Authentication Lookup
+    // ================================================================
+
+    Task<User?> GetByUsernameForAuthenticationAsync(
+        string username,
+        CancellationToken cancellationToken = default);
+
+    Task<User?> GetByEmailForAuthenticationAsync(
+        string email,
+        CancellationToken cancellationToken = default);
 
 
     // ================================================================

@@ -1,25 +1,28 @@
 using Microsoft.AspNetCore.Identity;
 using UAMS.Application.Interfaces.Services;
+using UAMS.Domain.Entities.Users;
 
 namespace UAMS.Infrastructure.Services;
 
-public sealed class PasswordService : IPasswordService
+public class PasswordService : IPasswordService
 {
-    private readonly PasswordHasher<object> _passwordHasher;
+    private readonly PasswordHasher<User> _passwordHasher;
 
     public PasswordService()
     {
-        _passwordHasher = new PasswordHasher<object>();
+        _passwordHasher = new PasswordHasher<User>();
     }
+
 
     public string HashPassword(string password)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(password);
 
         return _passwordHasher.HashPassword(
-            new object(),
+            null!,
             password);
     }
+
 
     public bool VerifyPassword(
         string password,
@@ -29,7 +32,7 @@ public sealed class PasswordService : IPasswordService
         ArgumentException.ThrowIfNullOrWhiteSpace(passwordHash);
 
         var result = _passwordHasher.VerifyHashedPassword(
-            new object(),
+            null!,
             passwordHash,
             password);
 

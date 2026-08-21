@@ -10,44 +10,68 @@ using UAMS.Domain.Entities.Users;
 
 namespace UAMS.Infrastructure.Services;
 
-public sealed class TokenService : ITokenService
+public class TokenService : ITokenService
 {
     private readonly IConfiguration _configuration;
 
     public TokenService(IConfiguration configuration)
     {
-        _configuration = configuration;
+        _configuration = configuration
+            ?? throw new ArgumentNullException(nameof(configuration));
     }
+
 
     public Task<TokenResponseDto> GenerateTokensAsync(
         User user,
+        bool rememberMe,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(user);
 
-        var jwtKey = _configuration["Jwt:Key"];
+        var jwtSection = _configuration.GetSection("Jwt");
 
-        if (string.IsNullOrWhiteSpace(jwtKey))
-        {
-            throw new InvalidOperationException(
-                "JWT signing key is not configured.");
-        }
+        var key = jwtSection["Key"]
+            ?? throw new InvalidOperationException(
+                "JWT Key is not configured.");
 
-        var issuer = _configuration["Jwt:Issuer"];
-        var audience = _configuration["Jwt:Audience"];
+        var issuer = jwtSection["Issuer"]
+            ?? throw new InvalidOperationException(
+                "JWT Issuer is not configured.");
 
-        var accessTokenMinutes =
-            _configuration.GetValue<int?>(
-                "Jwt:AccessTokenExpirationMinutes")
-            ?? 30;
+        var audience = jwtSection["Audience"]
+            ?? throw new InvalidOperationException(
+                "JWT Audience is not configured.");
 
-        var refreshTokenDays =
-            _configuration.GetValue<int?>(
-                "Jwt:RefreshTokenExpirationDays")
-            ?? 7;
+        var accessMinutes =
+            int.TryParse(
+                jwtSection["AccessTokenMinutes"],
+                out var minutes)
+                ? minutes
+                : 30;
 
-        var now = DateTime.UtcNow;
-        var expiresAt = now.AddMinutes(accessTokenMinutes);
+        var refreshDaysConfigurationKey =
+            rememberMe
+                ? "RememberMeRefreshTokenDays"
+                : "RefreshTokenDays";
+        var defaultRefreshDays =
+            rememberMe
+                ? 30
+                : 7;
+
+        var refreshDays =
+            int.TryParse(
+                jwtSection[refreshDaysConfigurationKey],
+                out var days)
+                ? days
+                : defaultRefreshDays;
+
+
+        var accessTokenExpiresAt =
+            DateTime.UtcNow.AddMinutes(accessMinutes);
+
+        var refreshTokenExpiresAt =
+            DateTime.UtcNow.AddDays(refreshDays);
+
 
         var claims = new List<Claim>
         {
@@ -61,65 +85,93 @@ public sealed class TokenService : ITokenService
 
             new(
                 ClaimTypes.Email,
-                user.Email)
+                user.Email),
+
+            new(
+                "EmployeeId",
+                user.EmployeeId),
+
+            new(
+                "DepartmentId",
+                user.DepartmentId.ToString())
         };
 
-        var credentials = new SigningCredentials(
-            new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey)),
-            SecurityAlgorithms.HmacSha256);
 
-        var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            notBefore: now,
-            expires: expiresAt,
-            signingCredentials: credentials);
+        var securityKey =
+            new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(key));
+
+        var credentials =
+            new SigningCredentials(
+                securityKey,
+                SecurityAlgorithms.HmacSha256);
+
+
+        var jwtToken =
+            new JwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
+                claims: claims,
+                expires: accessTokenExpiresAt,
+                signingCredentials: credentials);
+
 
         var accessToken =
             new JwtSecurityTokenHandler()
-                .WriteToken(token);
+                .WriteToken(jwtToken);
+
 
         var refreshToken =
             GenerateRefreshToken();
 
-        var response = new TokenResponseDto
+
+        var result = new TokenResponseDto
         {
             AccessToken = accessToken,
             RefreshToken = refreshToken,
-            ExpiresAt = expiresAt
+            AccessTokenExpiresAt = accessTokenExpiresAt,
+            RefreshTokenExpiresAt = refreshTokenExpiresAt
         };
 
-        return Task.FromResult(response);
+
+        return Task.FromResult(result);
     }
+
 
     public Task<TokenResponseDto?> RefreshTokenAsync(
         string refreshToken,
         CancellationToken cancellationToken = default)
     {
         /*
-         * Refresh-token persistence should be implemented together
-         * with the refresh-token repository/entity.
+         * IMPORTANT:
          *
-         * Do not simply accept an arbitrary refresh token.
+         * Persistent refresh-token validation is not implemented
+         * here because the current domain model does not yet contain
+         * a persisted refresh-token/session entity.
+         *
+         * This method should be completed after adding persistent
+         * refresh-token storage.
          */
 
-        return Task.FromResult<TokenResponseDto?>(null);
+        throw new NotSupportedException(
+            "Persistent refresh-token storage must be implemented " +
+            "before refresh-token rotation is enabled.");
     }
+
 
     public Task RevokeRefreshTokenAsync(
         string refreshToken,
         CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(refreshToken);
-
         /*
-         * Revoke the persisted refresh token here.
+         * Same reason as RefreshTokenAsync().
          */
 
-        return Task.CompletedTask;
+        throw new NotSupportedException(
+            "Persistent refresh-token storage must be implemented " +
+            "before refresh-token revocation is enabled.");
     }
+
 
     private static string GenerateRefreshToken()
     {

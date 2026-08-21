@@ -1,8 +1,8 @@
+namespace UAMS.Domain.Entities.Users;
+
 using UAMS.Domain.Common;
 using UAMS.Domain.Entities.Departments;
 using UAMS.Domain.Entities.Roles;
-
-namespace UAMS.Domain.Entities.Users;
 
 public class User : AuditableEntity
 {
@@ -34,7 +34,108 @@ public class User : AuditableEntity
 
     public Department Department { get; private set; } = null!;
 
+    public bool EmailVerified { get; private set; }
+
+    public DateTime? EmailVerifiedAt { get; private set; }
+
     public ICollection<UserRole> UserRoles { get; private set; }
         = new List<UserRole>();
 
+
+    public static User Create(
+        string employeeId,
+        string fullName,
+        string email,
+        string phoneNumber,
+        Guid departmentId,
+        string username,
+        string passwordHash)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(employeeId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fullName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(email);
+        ArgumentException.ThrowIfNullOrWhiteSpace(phoneNumber);
+        ArgumentException.ThrowIfNullOrWhiteSpace(username);
+        ArgumentException.ThrowIfNullOrWhiteSpace(passwordHash);
+
+        return new User
+        {
+            EmployeeId = employeeId.Trim(),
+            FullName = fullName.Trim(),
+            Email = email.Trim(),
+            PhoneNumber = phoneNumber.Trim(),
+            DepartmentId = departmentId,
+            Username = username.Trim(),
+            PasswordHash = passwordHash,
+            IsLocked = false,
+            FailedLoginAttempts = 0
+        };
+    }
+
+
+    // ================================================================
+    // Authentication Behavior
+    // ================================================================
+
+    public void ChangePassword(string passwordHash)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(passwordHash);
+
+        PasswordHash = passwordHash;
+
+        FailedLoginAttempts = 0;
+        IsLocked = false;
+        LockedAt = null;
+    }
+
+
+    public void RecordSuccessfulLogin(DateTime loginAt)
+    {
+        LastLoginAt = loginAt;
+        FailedLoginAttempts = 0;
+    }
+
+
+    public void RecordFailedLogin(int maxFailedLoginAttempts)
+    {
+        if (maxFailedLoginAttempts <= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(maxFailedLoginAttempts),
+                "Maximum failed login attempts must be greater than zero.");
+        }
+
+        if (IsLocked)
+        {
+            return;
+        }
+
+        FailedLoginAttempts++;
+
+        if (FailedLoginAttempts >= maxFailedLoginAttempts)
+        {
+            LockAccount();
+        }
+    }
+
+
+    public void LockAccount()
+    {
+        IsLocked = true;
+        LockedAt = DateTime.UtcNow;
+    }
+
+
+    public void UnlockAccount()
+    {
+        IsLocked = false;
+        FailedLoginAttempts = 0;
+        LockedAt = null;
+    }
+
+    public void VerifyEmail(DateTime verifiedAt)
+    {
+        EmailVerified = true;
+        EmailVerifiedAt = verifiedAt;
+    }
 }
