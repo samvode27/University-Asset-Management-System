@@ -17,4 +17,8 @@ public interface IRoleRepository : IRepository<Role>
 
     Task<IReadOnlyList<Role>> GetSystemRolesAsync(
         CancellationToken cancellationToken = default);
+
+    Task<Role?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
 }

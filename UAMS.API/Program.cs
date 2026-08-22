@@ -188,6 +188,13 @@ builder.Services.AddScoped<
     ICurrentUserService,
     CurrentUserService>();
 
+// ================================================================
+// User Services
+// ================================================================
+
+builder.Services.AddScoped<
+    UserService>();
+
 
 // ================================================================
 // Build Application

@@ -22,3 +22,15 @@ C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Domain\obj\Debug\net10.0\UAMS.D
 C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Domain\obj\Debug\net10.0\refint\UAMS.Domain.dll
 C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Domain\obj\Debug\net10.0\UAMS.Domain.pdb
 C:\Users\setar\OneDrive\Desktop\UAMS - Copy\UAMS.Domain\obj\Debug\net10.0\ref\UAMS.Domain.dll
+C:\Users\setar\OneDrive\Desktop\University Asset Management System\UAMS.Domain\bin\Debug\net10.0\UAMS.Domain.deps.json
+C:\Users\setar\OneDrive\Desktop\University Asset Management System\UAMS.Domain\bin\Debug\net10.0\UAMS.Domain.dll
+C:\Users\setar\OneDrive\Desktop\University Asset Management System\UAMS.Domain\bin\Debug\net10.0\UAMS.Domain.pdb
+C:\Users\setar\OneDrive\Desktop\University Asset Management System\UAMS.Domain\obj\Debug\net10.0\UAMS.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\setar\OneDrive\Desktop\University Asset Management System\UAMS.Domain\obj\Debug\net10.0\UAMS.Domain.AssemblyInfoInputs.cache
+C:\Users\setar\OneDrive\Desktop\University Asset Management System\UAMS.Domain\obj\Debug\net10.0\UAMS.Domain.AssemblyInfo.cs
+C:\Users\setar\OneDrive\Desktop\University Asset Management System\UAMS.Domain\obj\Debug\net10.0\UAMS.Domain.csproj.CoreCompileInputs.cache
+C:\Users\setar\OneDrive\Desktop\University Asset Management System\UAMS.Domain\obj\Debug\net10.0\UAMS.Domain.sourcelink.json
+C:\Users\setar\OneDrive\Desktop\University Asset Management System\UAMS.Domain\obj\Debug\net10.0\UAMS.Domain.dll
+C:\Users\setar\OneDrive\Desktop\University Asset Management System\UAMS.Domain\obj\Debug\net10.0\refint\UAMS.Domain.dll
+C:\Users\setar\OneDrive\Desktop\University Asset Management System\UAMS.Domain\obj\Debug\net10.0\UAMS.Domain.pdb
+C:\Users\setar\OneDrive\Desktop\University Asset Management System\UAMS.Domain\obj\Debug\net10.0\ref\UAMS.Domain.dll

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "t6uOmzCTVbg=",
+  "dgSpecHash": "vxI0Tp9eqhk=",
   "success": true,
-  "projectFilePath": "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS - Copy\\UAMS.Application\\UAMS.Application.csproj",
+  "projectFilePath": "C:\\Users\\setar\\OneDrive\\Desktop\\University Asset Management System\\UAMS.Application\\UAMS.Application.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\setar\\.nuget\\packages\\fluentvalidation\\12.1.1\\fluentvalidation.12.1.1.nupkg.sha512",
     "C:\\Users\\setar\\.nuget\\packages\\fluentvalidation.dependencyinjectionextensions\\12.1.1\\fluentvalidation.dependencyinjectionextensions.12.1.1.nupkg.sha512"

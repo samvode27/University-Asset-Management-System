@@ -47,6 +47,27 @@ public class RoleRepository
     }
 
 
+
+    public virtual async Task<Role?> GetByIdWithDetailsAsync(
+    Guid id,
+    CancellationToken cancellationToken = default)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Role ID is required.",
+                nameof(id));
+        }
+
+        return await DbSet
+            .Include(role => role.RolePermissions)
+                .ThenInclude(rolePermission => rolePermission.Permission)
+            .FirstOrDefaultAsync(
+                role => role.Id == id,
+                cancellationToken);
+    }
+
+
     // ================================================================
     // Get System Roles
     // ================================================================

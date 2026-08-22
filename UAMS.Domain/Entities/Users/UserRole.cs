@@ -23,4 +23,52 @@ public class UserRole : BaseEntity
 
     public Role Role { get; private set; } = null!;
 
+
+    public static UserRole Create(
+        Guid userId,
+        Guid roleId,
+        Guid assignedBy)
+    {
+        if (userId == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "User ID is required.",
+                nameof(userId));
+        }
+
+        if (roleId == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Role ID is required.",
+                nameof(roleId));
+        }
+
+        if (assignedBy == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Assigned by user ID is required.",
+                nameof(assignedBy));
+        }
+
+        return new UserRole
+        {
+            UserId = userId,
+            RoleId = roleId,
+            AssignedAt = DateTime.UtcNow,
+            AssignedBy = assignedBy,
+            IsActive = true
+        };
+    }
+
+
+    public void Deactivate()
+    {
+        IsActive = false;
+    }
+
+
+    public void Activate()
+    {
+        IsActive = true;
+    }
 }

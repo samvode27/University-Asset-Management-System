@@ -93,11 +93,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS - Copy\\UAMS.Application\\UAMS.Application.csproj",
+      "projectUniqueName": "C:\\Users\\setar\\OneDrive\\Desktop\\University Asset Management System\\UAMS.Application\\UAMS.Application.csproj",
       "projectName": "UAMS.Application",
-      "projectPath": "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS - Copy\\UAMS.Application\\UAMS.Application.csproj",
+      "projectPath": "C:\\Users\\setar\\OneDrive\\Desktop\\University Asset Management System\\UAMS.Application\\UAMS.Application.csproj",
       "packagesPath": "C:\\Users\\setar\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS - Copy\\UAMS.Application\\obj\\",
+      "outputPath": "C:\\Users\\setar\\OneDrive\\Desktop\\University Asset Management System\\UAMS.Application\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\setar\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -113,8 +113,8 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS - Copy\\UAMS.Domain\\UAMS.Domain.csproj": {
-              "projectPath": "C:\\Users\\setar\\OneDrive\\Desktop\\UAMS - Copy\\UAMS.Domain\\UAMS.Domain.csproj"
+            "C:\\Users\\setar\\OneDrive\\Desktop\\University Asset Management System\\UAMS.Domain\\UAMS.Domain.csproj": {
+              "projectPath": "C:\\Users\\setar\\OneDrive\\Desktop\\University Asset Management System\\UAMS.Domain\\UAMS.Domain.csproj"
             }
           }
         }

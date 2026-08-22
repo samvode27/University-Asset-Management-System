@@ -59,5 +59,9 @@ public class CreateUserRequestValidator
             .WithMessage("Password must contain at least one number.")
             .Matches("[^a-zA-Z0-9]")
             .WithMessage("Password must contain at least one special character.");
+
+        RuleFor(x => x.RoleId)
+            .NotEmpty()
+            .WithMessage("Role is required.");
     }
 }

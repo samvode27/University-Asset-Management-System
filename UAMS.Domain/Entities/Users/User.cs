@@ -138,4 +138,77 @@ public class User : AuditableEntity
         EmailVerified = true;
         EmailVerifiedAt = verifiedAt;
     }
+
+
+    // ================================================================
+    // User Management Behavior
+    // ================================================================
+
+    public void UpdateProfile(
+        string fullName,
+        string email,
+        string phoneNumber)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fullName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(email);
+        ArgumentException.ThrowIfNullOrWhiteSpace(phoneNumber);
+
+        FullName = fullName.Trim();
+        Email = email.Trim().ToLowerInvariant();
+        PhoneNumber = phoneNumber.Trim();
+    }
+
+
+    public void ChangeDepartment(Guid departmentId)
+    {
+        if (departmentId == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Department ID is required.",
+                nameof(departmentId));
+        }
+
+        DepartmentId = departmentId;
+    }
+
+
+    public void Activate()
+    {
+        IsActive = true;
+    }
+
+
+    public void Deactivate()
+    {
+        IsActive = false;
+    }
+
+
+    public void ResetPassword(string passwordHash)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(passwordHash);
+
+        PasswordHash = passwordHash;
+
+        FailedLoginAttempts = 0;
+        IsLocked = false;
+        LockedAt = null;
+    }
+
+
+    public void SoftDelete(Guid deletedBy)
+    {
+        IsDeleted = true;
+        DeletedAt = DateTime.UtcNow;
+        DeletedBy = deletedBy;
+        IsActive = false;
+    }
+
+
+    public void Restore()
+    {
+        IsDeleted = false;
+        DeletedAt = null;
+        DeletedBy = null;
+    }
 }

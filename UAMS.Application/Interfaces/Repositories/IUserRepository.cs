@@ -1,3 +1,5 @@
+using UAMS.Application.DTOs.Users;
+using UAMS.Application.DTOs.Users.Requests;
 using UAMS.Domain.Entities.Users;
 
 namespace UAMS.Application.Interfaces.Repositories;
@@ -23,6 +25,22 @@ public interface IUserRepository : IRepository<User>
         Guid id,
         CancellationToken cancellationToken = default);
 
+    Task<User?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
+    // ================================================================
+    // User Filtering / Pagination
+    // ================================================================
+
+    Task<UserQueryResult> GetPagedAsync(
+        UserFilterRequestDto request,
+        CancellationToken cancellationToken = default);
+
+
+    // ================================================================
+    // Existence
+    // ================================================================
     Task<bool> ExistsByUsernameAsync(
         string username,
         CancellationToken cancellationToken = default);

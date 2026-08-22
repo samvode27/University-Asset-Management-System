@@ -9,6 +9,7 @@ public class RolePermission : BaseEntity
     {
     }
 
+
     public Guid RoleId { get; private set; }
 
     public Guid PermissionId { get; private set; }
@@ -23,4 +24,54 @@ public class RolePermission : BaseEntity
 
     public Permission Permission { get; private set; } = null!;
 
+
+    // ================================================================
+    // Factory
+    // ================================================================
+
+    public static RolePermission Create(
+        Guid roleId,
+        Guid permissionId,
+        Guid assignedBy)
+    {
+        if (roleId == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Role ID is required.",
+                nameof(roleId));
+        }
+
+        if (permissionId == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Permission ID is required.",
+                nameof(permissionId));
+        }
+
+        if (assignedBy == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Assigned by user ID is required.",
+                nameof(assignedBy));
+        }
+
+        return new RolePermission
+        {
+            RoleId = roleId,
+            PermissionId = permissionId,
+            AssignedAt = DateTime.UtcNow,
+            AssignedBy = assignedBy,
+            IsActive = true
+        };
+    }
+
+
+    // ================================================================
+    // Activation
+    // ================================================================
+
+    public void Deactivate()
+    {
+        IsActive = false;
+    }
 }
