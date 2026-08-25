@@ -18,6 +18,12 @@ using UAMS.Infrastructure.Persistence;
 using UAMS.Infrastructure.Repositories;
 using UAMS.Infrastructure.Services;
 using UAMS.Infrastructure.UnitOfWork;
+using UAMS.Application.Services.AssetReturns;
+using UAMS.Application.Services.AssetDisposals;
+using Npgsql;
+using UAMS.Application.Services.Notifications;
+using UAMS.Application.Services.FileAttachments;
+using UAMS.Application.Services.AuditLogs;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -193,7 +199,179 @@ builder.Services.AddScoped<
 // ================================================================
 
 builder.Services.AddScoped<
+    IUserService,
     UserService>();
+
+// ================================================================
+// Role Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IRoleService,
+    RoleService>();
+
+// ================================================================
+// Department Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IDepartmentService,
+    DepartmentService>();
+
+// ================================================================
+// Asset Category Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IAssetCategoryService,
+    AssetCategoryService>();
+
+
+// ================================================================
+// Supplier Services
+// ================================================================
+
+builder.Services.AddScoped<
+    ISupplierService,
+    SupplierService>();
+
+// ================================================================
+// Purchase Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IPurchaseService,
+    PurchaseService>();
+
+// ================================================================
+// Asset Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IAssetService,
+    AssetService>();
+
+// ================================================================
+// QrCode Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IQRCodeService, 
+    QRCodeService>();
+
+// ================================================================
+// Barcode Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IBarcodeService, 
+    BarcodeService>();
+
+// ================================================================
+// AssetAssignment Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IAssetAssignmentService, 
+    AssetAssignmentService>();
+
+
+// ================================================================
+// Asset Transfer Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IAssetTransferService, 
+    AssetTransferService>();
+
+
+// ================================================================
+// Asset Return Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IAssetReturnService, 
+    AssetReturnService>();
+
+
+// ================================================================
+// Asset Disposal Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IAssetDisposalService, 
+    AssetDisposalService>();
+
+// ================================================================
+// Maintainance Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IMaintenanceService, 
+    MaintenanceService>();
+
+// ================================================================
+// Notification Services
+// ================================================================
+
+builder.Services.AddScoped<
+    INotificationService, 
+    NotificationService>();
+
+// ================================================================
+// File Attachment Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IFileAttachmentService, 
+    FileAttachmentService>();
+
+// ================================================================
+// AuditLog Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IAuditLogService, 
+    AuditLogService>();
+
+
+// ================================================================
+// Dashboard Services
+// ================================================================
+builder.Services.AddScoped<
+    IDashboardService, 
+    DashboardService>();
+
+// ================================================================
+// Profile Services
+// ================================================================
+builder.Services.AddScoped<
+    IProfileService, 
+    ProfileService>();
+
+// ================================================================
+// Damage Report Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IDamageReportService, 
+    DamageReportService>();
+
+// ================================================================
+// Permission Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IPermissionService, 
+    PermissionService>();
+
+// ================================================================
+// Asset Request Services
+// ================================================================
+
+builder.Services.AddScoped<
+    IAssetRequestService, 
+    AssetRequestService>();
 
 
 // ================================================================

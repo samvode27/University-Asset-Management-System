@@ -31,6 +31,32 @@ public class DepartmentRepository
                 cancellationToken);
     }
 
+    // ================================================================
+    // Get Department By Id With Details
+    // ================================================================
+
+    public virtual async Task<Department?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Department ID is required.",
+                nameof(id));
+        }
+
+        return await DbSet
+            .Include(department => department.DepartmentHead)
+            .Include(department => department.Users)
+            .Include(department => department.Assets)
+            .Include(department => department.AssetRequests)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                department => department.Id == id,
+                cancellationToken);
+    }
+
 
     // ================================================================
     // Get Active Departments

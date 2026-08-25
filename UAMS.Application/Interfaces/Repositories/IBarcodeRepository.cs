@@ -12,6 +12,10 @@ public interface IBarcodeRepository : IRepository<Barcode>
         string code,
         CancellationToken cancellationToken = default);
 
+    Task<Barcode?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
 
     // ================================================================
     // Asset-Based Lookup

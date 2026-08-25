@@ -10,6 +10,11 @@ public class Barcode : AuditableEntity
     {
     }
 
+
+    // ================================================================
+    // Properties
+    // ================================================================
+
     public Guid AssetId { get; private set; }
 
     public string Code { get; private set; } = null!;
@@ -26,4 +31,106 @@ public class Barcode : AuditableEntity
 
     public Asset Asset { get; private set; } = null!;
 
+
+    // ================================================================
+    // Factory
+    // ================================================================
+
+    public static Barcode Create(
+        Guid assetId,
+        string code,
+        string encodedData,
+        BarcodeFormat format,
+        string? imagePath,
+        DateTime generatedAt,
+        DateTime? expiresAt)
+    {
+        if (assetId == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Asset ID is required.",
+                nameof(assetId));
+        }
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            code,
+            nameof(code));
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            encodedData,
+            nameof(encodedData));
+
+        if (!Enum.IsDefined(format))
+        {
+            throw new ArgumentException(
+                "Invalid barcode format.",
+                nameof(format));
+        }
+
+        if (expiresAt.HasValue &&
+            expiresAt.Value <= generatedAt)
+        {
+            throw new ArgumentException(
+                "Barcode expiration date must be after the generation date.",
+                nameof(expiresAt));
+        }
+
+        return new Barcode
+        {
+            Id = Guid.NewGuid(),
+            AssetId = assetId,
+            Code = code.Trim(),
+            EncodedData = encodedData.Trim(),
+            Format = format,
+            ImagePath = imagePath,
+            GeneratedAt = generatedAt,
+            ExpiresAt = expiresAt
+        };
+    }
+
+
+    // ================================================================
+    // Update
+    // ================================================================
+
+    public void Update(
+        BarcodeFormat format,
+        DateTime? expiresAt)
+    {
+        if (!Enum.IsDefined(format))
+        {
+            throw new ArgumentException(
+                "Invalid barcode format.",
+                nameof(format));
+        }
+
+        if (expiresAt.HasValue &&
+            expiresAt.Value <= GeneratedAt)
+        {
+            throw new ArgumentException(
+                "Barcode expiration date must be after the generation date.",
+                nameof(expiresAt));
+        }
+
+        Format = format;
+        ExpiresAt = expiresAt;
+    }
+
+
+    // ================================================================
+    // Expiration
+    // ================================================================
+
+    public bool IsCurrentlyActive()
+    {
+        return ExpiresAt == null ||
+               ExpiresAt > DateTime.UtcNow;
+    }
+
+
+    public bool IsExpired()
+    {
+        return ExpiresAt.HasValue &&
+               ExpiresAt.Value <= DateTime.UtcNow;
+    }
 }

@@ -21,6 +21,11 @@ public class Asset : AuditableEntity
     {
     }
 
+
+    // ================================================================
+    // Properties
+    // ================================================================
+
     public string AssetTag { get; private set; } = null!;
 
     public string Name { get; private set; } = null!;
@@ -61,6 +66,11 @@ public class Asset : AuditableEntity
 
     public Barcode? Barcode { get; private set; }
 
+
+    // ================================================================
+    // Lifecycle Navigation Collections
+    // ================================================================
+
     public ICollection<AssetRequest> AssetRequests { get; private set; }
         = new List<AssetRequest>();
 
@@ -75,14 +85,165 @@ public class Asset : AuditableEntity
 
     public ICollection<DamageReport> DamageReports { get; private set; }
         = new List<DamageReport>();
-    
-    public ICollection<Maintenance> Maintenances
-        { get; private set; }
+
+    public ICollection<Maintenance> Maintenances { get; private set; }
         = new List<Maintenance>();
 
-    public ICollection<AssetDisposal> AssetDisposals
-        { get; private set; }
+    public ICollection<AssetDisposal> AssetDisposals { get; private set; }
         = new List<AssetDisposal>();
 
 
+    // ================================================================
+    // Factory
+    // ================================================================
+
+    public static Asset Create(
+        string assetTag,
+        string name,
+        string? description,
+        string? serialNumber,
+        string? model,
+        string? manufacturer,
+        Guid assetCategoryId,
+        Guid purchaseId,
+        Guid? departmentId,
+        decimal purchaseCost,
+        DateTime purchaseDate,
+        DateTime? warrantyExpiryDate,
+        string? location,
+        AssetStatus status,
+        AssetCondition condition)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(assetTag);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        if (assetCategoryId == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Asset category is required.",
+                nameof(assetCategoryId));
+        }
+
+        if (purchaseId == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Purchase is required.",
+                nameof(purchaseId));
+        }
+
+        if (purchaseCost < 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(purchaseCost),
+                "Purchase cost cannot be negative.");
+        }
+
+        if (purchaseDate > DateTime.UtcNow)
+        {
+            throw new ArgumentException(
+                "Purchase date cannot be in the future.",
+                nameof(purchaseDate));
+        }
+
+        if (warrantyExpiryDate.HasValue &&
+            warrantyExpiryDate.Value < purchaseDate)
+        {
+            throw new ArgumentException(
+                "Warranty expiry date cannot be earlier than purchase date.",
+                nameof(warrantyExpiryDate));
+        }
+
+        return new Asset
+        {
+            AssetTag = assetTag.Trim(),
+            Name = name.Trim(),
+            Description = Normalize(description),
+            SerialNumber = Normalize(serialNumber),
+            Model = Normalize(model),
+            Manufacturer = Normalize(manufacturer),
+            AssetCategoryId = assetCategoryId,
+            PurchaseId = purchaseId,
+            DepartmentId = departmentId,
+            PurchaseCost = purchaseCost,
+            PurchaseDate = purchaseDate,
+            WarrantyExpiryDate = warrantyExpiryDate,
+            Location = Normalize(location),
+            Status = status,
+            Condition = condition
+        };
+    }
+
+
+    // ================================================================
+    // Update
+    // ================================================================
+
+    public void Update(
+        string name,
+        string? description,
+        string? serialNumber,
+        string? model,
+        string? manufacturer,
+        Guid assetCategoryId,
+        Guid? departmentId,
+        decimal purchaseCost,
+        DateTime purchaseDate,
+        DateTime? warrantyExpiryDate,
+        string? location)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        if (assetCategoryId == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Asset category is required.",
+                nameof(assetCategoryId));
+        }
+
+        if (purchaseCost < 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(purchaseCost),
+                "Purchase cost cannot be negative.");
+        }
+
+        if (purchaseDate > DateTime.UtcNow)
+        {
+            throw new ArgumentException(
+                "Purchase date cannot be in the future.",
+                nameof(purchaseDate));
+        }
+
+        if (warrantyExpiryDate.HasValue &&
+            warrantyExpiryDate.Value < purchaseDate)
+        {
+            throw new ArgumentException(
+                "Warranty expiry date cannot be earlier than purchase date.",
+                nameof(warrantyExpiryDate));
+        }
+
+        Name = name.Trim();
+        Description = Normalize(description);
+        SerialNumber = Normalize(serialNumber);
+        Model = Normalize(model);
+        Manufacturer = Normalize(manufacturer);
+        AssetCategoryId = assetCategoryId;
+        DepartmentId = departmentId;
+        PurchaseCost = purchaseCost;
+        PurchaseDate = purchaseDate;
+        WarrantyExpiryDate = warrantyExpiryDate;
+        Location = Normalize(location);
+    }
+
+
+    // ================================================================
+    // Private Helpers
+    // ================================================================
+
+    private static string? Normalize(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value)
+            ? null
+            : value.Trim();
+    }
 }

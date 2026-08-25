@@ -12,6 +12,10 @@ public interface IPurchaseRepository : IRepository<Purchase>
         string purchaseNumber,
         CancellationToken cancellationToken = default);
 
+    Task<Purchase?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
 
     // ================================================================
     // Supplier-Based Queries

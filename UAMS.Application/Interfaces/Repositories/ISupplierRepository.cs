@@ -12,6 +12,10 @@ public interface ISupplierRepository : IRepository<Supplier>
         string name,
         CancellationToken cancellationToken = default);
 
+    Task<Supplier?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
 
     // ================================================================
     // Supplier Status

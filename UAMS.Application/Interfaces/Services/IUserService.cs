@@ -5,7 +5,7 @@ namespace UAMS.Application.Interfaces.Services;
 
 public interface IUserService
 {
-    Task<UserResponseDto> CreateUserAsync(
+    Task<UserDetailResponseDto> CreateUserAsync(
         CreateUserRequestDto request,
         CancellationToken cancellationToken = default);
 
@@ -17,7 +17,7 @@ public interface IUserService
         UserFilterRequestDto request,
         CancellationToken cancellationToken = default);
 
-    Task<UserResponseDto> UpdateUserAsync(
+    Task<UserDetailResponseDto> UpdateUserAsync(
         Guid id,
         UpdateUserRequestDto request,
         CancellationToken cancellationToken = default);

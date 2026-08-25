@@ -26,6 +26,7 @@ public class AuditLogRepository
     {
         return await DbSet
             .AsNoTracking()
+            .Include(log => log.User)
             .Where(log =>
                 log.UserId == userId)
             .OrderByDescending(log =>

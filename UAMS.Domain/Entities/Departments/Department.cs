@@ -38,4 +38,78 @@ public class Department : AuditableEntity
     public ICollection<AssetRequest> AssetRequests { get; private set; }
         = new List<AssetRequest>();
 
+
+    // ================================================================
+    // Factory
+    // ================================================================
+
+    public static Department Create(
+        string code,
+        string name,
+        string? description,
+        string? officeLocation,
+        DateTime? establishedDate,
+        Guid? departmentHeadId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        return new Department
+        {
+            Code = code.Trim(),
+            Name = name.Trim(),
+            Description = string.IsNullOrWhiteSpace(description)
+                ? null
+                : description.Trim(),
+            OfficeLocation = string.IsNullOrWhiteSpace(officeLocation)
+                ? null
+                : officeLocation.Trim(),
+            EstablishedDate = establishedDate,
+            DepartmentHeadId = departmentHeadId,
+            IsActive = true
+        };
+    }
+
+
+    // ================================================================
+    // Department Management
+    // ================================================================
+
+    public void Update(
+        string code,
+        string name,
+        string? description,
+        string? officeLocation,
+        DateTime? establishedDate,
+        Guid? departmentHeadId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        Code = code.Trim();
+        Name = name.Trim();
+
+        Description = string.IsNullOrWhiteSpace(description)
+            ? null
+            : description.Trim();
+
+        OfficeLocation = string.IsNullOrWhiteSpace(officeLocation)
+            ? null
+            : officeLocation.Trim();
+
+        EstablishedDate = establishedDate;
+        DepartmentHeadId = departmentHeadId;
+    }
+
+
+    public void Activate()
+    {
+        IsActive = true;
+    }
+
+
+    public void Deactivate()
+    {
+        IsActive = false;
+    }
 }

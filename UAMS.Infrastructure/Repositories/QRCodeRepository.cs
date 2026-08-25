@@ -33,6 +33,30 @@ public class QRCodeRepository
 
 
     // ================================================================
+    // Get QR Code By ID With Details
+    // ================================================================
+
+    public virtual async Task<QRCode?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "QR code ID is required.",
+                nameof(id));
+        }
+
+        return await DbSet
+            .AsNoTracking()
+            .Include(qrCode => qrCode.Asset)
+            .FirstOrDefaultAsync(
+                qrCode => qrCode.Id == id,
+                cancellationToken);
+    }
+
+
+    // ================================================================
     // Get QR Code By Asset
     // ================================================================
 

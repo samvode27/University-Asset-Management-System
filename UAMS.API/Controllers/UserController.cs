@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using UAMS.Application.DTOs.Users.Requests;
 using UAMS.Application.DTOs.Users.Responses;
-using UAMS.Application.Services;
+using UAMS.Application.Interfaces.Services;
 
 namespace UAMS.API.Controllers;
 
@@ -12,10 +12,10 @@ namespace UAMS.API.Controllers;
 [Authorize]
 public class UserController : ControllerBase
 {
-    private readonly UserService _userService;
+    private readonly IUserService _userService;
 
     public UserController(
-        UserService userService)
+        IUserService userService)
     {
         _userService = userService;
     }
@@ -27,19 +27,16 @@ public class UserController : ControllerBase
     // ================================================================
 
     [HttpPost]
-    public async Task<ActionResult<UserDetailResponseDto>> Create(
+    public async Task<ActionResult<UserResponseDto>> Create(
         [FromBody] CreateUserRequestDto request,
         CancellationToken cancellationToken)
     {
         var result =
-            await _userService.CreateAsync(
+            await _userService.CreateUserAsync(
                 request,
                 cancellationToken);
 
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = result.Id },
-            result);
+        return Ok(result);
     }
 
 
@@ -54,7 +51,7 @@ public class UserController : ControllerBase
         CancellationToken cancellationToken)
     {
         var result =
-            await _userService.GetByIdAsync(
+            await _userService.GetUserByIdAsync(
                 id,
                 cancellationToken);
 
@@ -73,7 +70,7 @@ public class UserController : ControllerBase
         CancellationToken cancellationToken)
     {
         var result =
-            await _userService.GetAllAsync(
+            await _userService.GetUsersAsync(
                 request,
                 cancellationToken);
 
@@ -87,13 +84,13 @@ public class UserController : ControllerBase
     // ================================================================
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<UserDetailResponseDto>> Update(
+    public async Task<ActionResult<UserResponseDto>> Update(
         Guid id,
         [FromBody] UpdateUserRequestDto request,
         CancellationToken cancellationToken)
     {
         var result =
-            await _userService.UpdateAsync(
+            await _userService.UpdateUserAsync(
                 id,
                 request,
                 cancellationToken);
@@ -113,7 +110,7 @@ public class UserController : ControllerBase
         [FromBody] ResetUserPasswordRequestDto request,
         CancellationToken cancellationToken)
     {
-        await _userService.ResetPasswordAsync(
+        await _userService.ResetUserPasswordAsync(
             id,
             request,
             cancellationToken);
@@ -163,6 +160,42 @@ public class UserController : ControllerBase
 
 
     // ================================================================
+    // Activate User
+    // POST: api/users/{id}/activate
+    // ================================================================
+
+    [HttpPost("{id:guid}/activate")]
+    public async Task<IActionResult> Activate(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await _userService.ActivateUserAsync(
+            id,
+            cancellationToken);
+
+        return NoContent();
+    }
+
+
+    // ================================================================
+    // Deactivate User
+    // POST: api/users/{id}/deactivate
+    // ================================================================
+
+    [HttpPost("{id:guid}/deactivate")]
+    public async Task<IActionResult> Deactivate(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await _userService.DeactivateUserAsync(
+            id,
+            cancellationToken);
+
+        return NoContent();
+    }
+
+
+    // ================================================================
     // Delete User
     // DELETE: api/users/{id}
     // ================================================================
@@ -172,43 +205,7 @@ public class UserController : ControllerBase
         Guid id,
         CancellationToken cancellationToken)
     {
-        await _userService.DeleteAsync(
-            id,
-            cancellationToken);
-
-        return NoContent();
-    }
-
-
-    // ================================================================
-    // Restore User
-    // POST: api/users/{id}/restore
-    // ================================================================
-
-    [HttpPost("{id:guid}/restore")]
-    public async Task<IActionResult> Restore(
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        await _userService.RestoreAsync(
-            id,
-            cancellationToken);
-
-        return NoContent();
-    }
-
-
-    // ================================================================
-    // Unlock User
-    // POST: api/users/{id}/unlock
-    // ================================================================
-
-    [HttpPost("{id:guid}/unlock")]
-    public async Task<IActionResult> Unlock(
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        await _userService.UnlockAsync(
+        await _userService.DeleteUserAsync(
             id,
             cancellationToken);
 

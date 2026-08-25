@@ -1,4 +1,5 @@
 using UAMS.Domain.Entities.AssetAssignments;
+using UAMS.Domain.Enums;
 
 namespace UAMS.Application.Interfaces.Repositories;
 
@@ -11,6 +12,10 @@ public interface IAssetAssignmentRepository
 
     Task<IReadOnlyList<AssetAssignment>> GetByAssetIdAsync(
         Guid assetId,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<AssetAssignment>> GetByStatusAsync(
+        AssetAssignmentStatus status,
         CancellationToken cancellationToken = default);
 
 

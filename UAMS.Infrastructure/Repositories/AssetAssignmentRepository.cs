@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using UAMS.Application.Interfaces.Repositories;
 using UAMS.Domain.Entities.AssetAssignments;
+using UAMS.Domain.Enums;
 using UAMS.Infrastructure.Persistence;
 
 namespace UAMS.Infrastructure.Repositories;
@@ -26,6 +27,19 @@ public class AssetAssignmentRepository
         return await DbSet
             .AsNoTracking()
             .Where(assignment => assignment.AssetId == assetId)
+            .OrderByDescending(assignment => assignment.AssignedDate)
+            .ToListAsync(cancellationToken);
+    }
+
+
+    public virtual async Task<IReadOnlyList<AssetAssignment>>
+    GetByStatusAsync(
+        AssetAssignmentStatus status,
+        CancellationToken cancellationToken = default)
+    {
+        return await DbSet
+            .AsNoTracking()
+            .Where(assignment => assignment.Status == status)
             .OrderByDescending(assignment => assignment.AssignedDate)
             .ToListAsync(cancellationToken);
     }

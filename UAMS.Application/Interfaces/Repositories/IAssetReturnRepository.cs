@@ -1,3 +1,4 @@
+using UAMS.Application.DTOs.AssetReturns.Requests;
 using UAMS.Domain.Entities.AssetReturns;
 using UAMS.Domain.Enums;
 
@@ -6,6 +7,11 @@ namespace UAMS.Application.Interfaces.Repositories;
 public interface IAssetReturnRepository
     : IRepository<AssetReturn>
 {
+
+    Task<(IReadOnlyList<AssetReturn> Items, int TotalCount)>
+    FilterAsync(
+        AssetReturnFilterRequestDto request,
+        CancellationToken cancellationToken = default);
     // ================================================================
     // Get Return By Return Number
     // ================================================================

@@ -33,6 +33,23 @@ public class BarcodeRepository
 
 
     // ================================================================
+    // Get Barcode By ID With Details
+    // ================================================================
+
+    public virtual async Task<Barcode?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return await DbSet
+            .AsNoTracking()
+            .Include(barcode => barcode.Asset)
+            .FirstOrDefaultAsync(
+                barcode => barcode.Id == id,
+                cancellationToken);
+    }
+
+
+    // ================================================================
     // Get Barcode By Asset
     // ================================================================
 

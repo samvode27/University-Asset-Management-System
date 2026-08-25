@@ -33,6 +33,31 @@ public class AssetCategoryRepository
 
 
     // ================================================================
+    // Get Asset Category By Id With Details
+    // ================================================================
+
+    public virtual async Task<AssetCategory?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Asset category ID is required.",
+                nameof(id));
+        }
+
+        return await DbSet
+            .Include(category => category.Assets)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                category => category.Id == id,
+                cancellationToken);
+    }
+
+
+
+    // ================================================================
     // Get Active Asset Categories
     // ================================================================
 

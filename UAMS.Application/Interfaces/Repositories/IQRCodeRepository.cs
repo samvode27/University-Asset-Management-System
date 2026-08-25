@@ -12,6 +12,10 @@ public interface IQRCodeRepository : IRepository<QRCode>
         string code,
         CancellationToken cancellationToken = default);
 
+    Task<QRCode?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
 
     // ================================================================
     // Asset-Based Lookup

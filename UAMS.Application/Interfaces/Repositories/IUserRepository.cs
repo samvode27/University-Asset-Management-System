@@ -93,4 +93,8 @@ public interface IUserRepository : IRepository<User>
     Task<IReadOnlyList<User>> GetByRoleAsync(
         Guid roleId,
         CancellationToken cancellationToken = default);
+
+    Task<User?> GetWithProfileDetailsAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default);
 }

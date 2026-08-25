@@ -52,6 +52,40 @@ public class AssetRepository
 
 
     // ================================================================
+    // Get Asset By ID With Details
+    // ================================================================
+
+    public virtual async Task<Asset?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Asset ID is required.",
+                nameof(id));
+        }
+
+        return await DbSet
+            .Include(asset => asset.AssetCategory)
+            .Include(asset => asset.Purchase)
+                .ThenInclude(purchase => purchase.Supplier)
+            .Include(asset => asset.Department)
+            .Include(asset => asset.QRCode)
+            .Include(asset => asset.Barcode)
+            .Include(asset => asset.AssetRequests)
+            .Include(asset => asset.AssetAssignments)
+            .Include(asset => asset.AssetTransfers)
+            .Include(asset => asset.AssetReturns)
+            .Include(asset => asset.DamageReports)
+            .Include(asset => asset.Maintenances)
+            .Include(asset => asset.AssetDisposals)
+            .FirstOrDefaultAsync(
+                asset => asset.Id == id,
+                cancellationToken);
+    }
+
+    // ================================================================
     // Get Assets By Status
     // ================================================================
 

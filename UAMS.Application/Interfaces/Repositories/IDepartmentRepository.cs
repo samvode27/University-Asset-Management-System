@@ -12,6 +12,10 @@ public interface IDepartmentRepository : IRepository<Department>
         string name,
         CancellationToken cancellationToken = default);
 
+    Task<Department?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
 
     // ================================================================
     // Department Status

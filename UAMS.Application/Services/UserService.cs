@@ -6,7 +6,7 @@ using UAMS.Domain.Entities.Users;
 
 namespace UAMS.Application.Services;
 
-public class UserService
+public class UserService : IUserService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordService _passwordService;
@@ -27,7 +27,7 @@ public class UserService
     // Create User
     // ================================================================
 
-    public async Task<UserDetailResponseDto> CreateAsync(
+    public async Task<UserDetailResponseDto> CreateUserAsync(
         CreateUserRequestDto request,
         CancellationToken cancellationToken = default)
     {
@@ -165,7 +165,7 @@ public class UserService
     // Get User By ID
     // ================================================================
 
-    public async Task<UserDetailResponseDto> GetByIdAsync(
+    public async Task<UserDetailResponseDto> GetUserByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default)
     {
@@ -195,7 +195,7 @@ public class UserService
     // Get Users
     // ================================================================
 
-    public async Task<UserListResponseDto> GetAllAsync(
+    public async Task<UserListResponseDto> GetUsersAsync(
         UserFilterRequestDto request,
         CancellationToken cancellationToken = default)
     {
@@ -418,7 +418,7 @@ public class UserService
     // Update User
     // ================================================================
 
-    public async Task<UserDetailResponseDto> UpdateAsync(
+    public async Task<UserDetailResponseDto> UpdateUserAsync(
         Guid id,
         UpdateUserRequestDto request,
         CancellationToken cancellationToken = default)
@@ -532,7 +532,7 @@ public class UserService
     // Reset User Password
     // ================================================================
 
-    public async Task ResetPasswordAsync(
+    public async Task ResetUserPasswordAsync(
         Guid id,
         ResetUserPasswordRequestDto request,
         CancellationToken cancellationToken = default)
@@ -703,10 +703,79 @@ public class UserService
 
 
     // ================================================================
+    // Activate User
+    // ================================================================
+
+    public async Task ActivateUserAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "User ID is required.",
+                nameof(id));
+        }
+
+        var user =
+            await _unitOfWork.Users.GetByIdAsync(
+                id,
+                cancellationToken);
+
+        if (user is null)
+        {
+            throw new KeyNotFoundException(
+                "User not found.");
+        }
+
+        user.Activate();
+
+        _unitOfWork.Users.Update(user);
+
+        await _unitOfWork.SaveChangesAsync(
+            cancellationToken);
+    }
+
+
+    // ================================================================
+    // Deactivate User
+    // ================================================================
+
+    public async Task DeactivateUserAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "User ID is required.",
+                nameof(id));
+        }
+
+        var user =
+            await _unitOfWork.Users.GetByIdAsync(
+                id,
+                cancellationToken);
+
+        if (user is null)
+        {
+            throw new KeyNotFoundException(
+                "User not found.");
+        }
+
+        user.Deactivate();
+
+        _unitOfWork.Users.Update(user);
+
+        await _unitOfWork.SaveChangesAsync(
+            cancellationToken);
+    }
+
+    // ================================================================
     // Delete User
     // ================================================================
 
-    public async Task DeleteAsync(
+    public async Task DeleteUserAsync(
         Guid id,
         CancellationToken cancellationToken = default)
     {

@@ -13,6 +13,11 @@ public interface IAssetCategoryRepository
         string name,
         CancellationToken cancellationToken = default);
 
+    Task<AssetCategory?> GetByIdWithDetailsAsync( 
+        Guid id, 
+        CancellationToken cancellationToken = default);
+
+
 
     // ================================================================
     // Category Status

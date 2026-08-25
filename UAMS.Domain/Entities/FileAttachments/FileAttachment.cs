@@ -10,6 +10,11 @@ public class FileAttachment : AuditableEntity
     {
     }
 
+
+    // ================================================================
+    // Properties
+    // ================================================================
+
     public Guid UploadedById { get; private set; }
 
     public string EntityName { get; private set; } = null!;
@@ -39,28 +44,138 @@ public class FileAttachment : AuditableEntity
     public string? Checksum { get; private set; }
 
 
+    // ================================================================
+    // Navigation Properties
+    // ================================================================
+
     public User UploadedBy { get; private set; } = null!;
 
+
+    // ================================================================
+    // Factory
+    // ================================================================
+
+    public static FileAttachment Create(
+        Guid uploadedById,
+        string entityName,
+        Guid entityId,
+        string fileName,
+        string storedFileName,
+        string filePath,
+        string contentType,
+        string fileExtension,
+        long fileSize,
+        FileAttachmentType fileType,
+        string? description = null,
+        string? checksum = null)
+    {
+        if (uploadedById == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Uploaded by user ID is required.",
+                nameof(uploadedById));
+        }
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            entityName,
+            nameof(entityName));
+
+        if (entityId == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Entity ID is required.",
+                nameof(entityId));
+        }
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            fileName,
+            nameof(fileName));
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            storedFileName,
+            nameof(storedFileName));
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            filePath,
+            nameof(filePath));
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            contentType,
+            nameof(contentType));
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            fileExtension,
+            nameof(fileExtension));
+
+        if (fileSize <= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(fileSize),
+                "File size must be greater than zero.");
+        }
+
+        return new FileAttachment
+        {
+            Id = Guid.NewGuid(),
+            UploadedById = uploadedById,
+            EntityName = entityName.Trim(),
+            EntityId = entityId,
+            FileName = fileName.Trim(),
+            StoredFileName = storedFileName.Trim(),
+            FilePath = filePath.Trim(),
+            ContentType = contentType.Trim(),
+            FileExtension = fileExtension.Trim(),
+            FileSize = fileSize,
+            FileType = fileType,
+            Description = Normalize(description),
+            Status = FileAttachmentStatus.Active,
+            UploadedAt = DateTime.UtcNow,
+            Checksum = Normalize(checksum),
+            IsActive = true,
+            IsDeleted = false
+        };
+    }
+
+
+    // ================================================================
+    // Update
+    // ================================================================
 
     public void Update(
         string? description,
         FileAttachmentType fileType)
     {
-        Description = description;
+        Description = Normalize(description);
         FileType = fileType;
     }
 
+
+    // ================================================================
+    // Update Storage Information
+    // ================================================================
 
     public void UpdateStorageInformation(
         string storedFileName,
         string filePath,
         string? checksum)
     {
-        StoredFileName = storedFileName;
-        FilePath = filePath;
-        Checksum = checksum;
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            storedFileName,
+            nameof(storedFileName));
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            filePath,
+            nameof(filePath));
+
+        StoredFileName = storedFileName.Trim();
+        FilePath = filePath.Trim();
+        Checksum = Normalize(checksum);
     }
 
+
+    // ================================================================
+    // Archive
+    // ================================================================
 
     public void Archive()
     {
@@ -69,15 +184,31 @@ public class FileAttachment : AuditableEntity
     }
 
 
+    // ================================================================
+    // Restore
+    // ================================================================
+
     public void Restore()
     {
         Status = FileAttachmentStatus.Active;
         IsActive = true;
+        IsDeleted = false;
     }
 
 
+    // ================================================================
+    // Soft Delete
+    // ================================================================
+
     public void MarkDeleted(Guid deletedBy)
     {
+        if (deletedBy == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Deleted by user ID is required.",
+                nameof(deletedBy));
+        }
+
         Status = FileAttachmentStatus.Deleted;
         IsActive = false;
 
@@ -87,6 +218,10 @@ public class FileAttachment : AuditableEntity
     }
 
 
+    // ================================================================
+    // Activate
+    // ================================================================
+
     public void Activate()
     {
         Status = FileAttachmentStatus.Active;
@@ -94,8 +229,24 @@ public class FileAttachment : AuditableEntity
     }
 
 
+    // ================================================================
+    // Deactivate
+    // ================================================================
+
     public void Deactivate()
     {
         IsActive = false;
+    }
+
+
+    // ================================================================
+    // Private Helpers
+    // ================================================================
+
+    private static string? Normalize(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value)
+            ? null
+            : value.Trim();
     }
 }

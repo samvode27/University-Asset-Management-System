@@ -17,6 +17,10 @@ public interface IAssetRepository : IRepository<Asset>
         string serialNumber,
         CancellationToken cancellationToken = default);
 
+    Task<Asset?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
 
     // ================================================================
     // Asset Status

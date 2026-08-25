@@ -77,4 +77,29 @@ public class DashboardSummaryResponseDto
     public int TotalDepartments { get; set; }
 
     public int ActiveDepartments { get; set; }
+
+
+    // ============================================================
+    // Notifications
+    // ============================================================
+
+    public int TotalNotifications { get; set; }
+
+    public int UnreadNotifications { get; set; }
+
+    public int ReadNotifications { get; set; }
+
+
+    // ============================================================
+    // Audit Activity
+    // ============================================================
+
+    public int TotalAuditLogs { get; set; }
+
+    public int SuccessfulAuditLogs { get; set; }
+
+    public int FailedAuditLogs { get; set; }
+
+    public int CriticalAuditLogs { get; set; }
+
 }

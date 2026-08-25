@@ -32,6 +32,17 @@ public class SupplierRepository
     }
 
 
+    public async Task<Supplier?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return await DbSet
+            .Include(supplier => supplier.Purchases)
+            .FirstOrDefaultAsync(
+                supplier => supplier.Id == id,
+                cancellationToken);
+    }
+
     // ================================================================
     // Get Active Suppliers
     // ================================================================

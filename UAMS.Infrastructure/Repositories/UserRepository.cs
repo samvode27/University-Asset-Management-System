@@ -97,13 +97,22 @@ public class UserRepository
         Guid id,
         CancellationToken cancellationToken = default)
     {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "User ID is required.",
+                nameof(id));
+        }
+
         return await DbSet
+            .AsNoTracking()
             .Include(user => user.Department)
             .Include(user => user.UserRoles)
                 .ThenInclude(userRole => userRole.Role)
-            .AsNoTracking()
             .FirstOrDefaultAsync(
-                user => user.Id == id,
+                user =>
+                    user.Id == id &&
+                    !user.IsDeleted,
                 cancellationToken);
     }
 
@@ -485,5 +494,23 @@ public class UserRepository
                 !user.IsDeleted)
             .OrderBy(user => user.FullName)
             .ToListAsync(cancellationToken);
+    }
+
+
+
+    public async Task<User?> GetWithProfileDetailsAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        return await DbSet
+            .AsNoTracking()
+            .Include(user => user.Department)
+            .Include(user => user.UserRoles)
+                .ThenInclude(userRole => userRole.Role)
+            .FirstOrDefaultAsync(
+                user =>
+                    user.Id == userId &&
+                    !user.IsDeleted,
+                cancellationToken);
     }
 }

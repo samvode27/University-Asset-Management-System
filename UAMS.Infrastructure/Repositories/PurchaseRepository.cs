@@ -33,6 +33,29 @@ public class PurchaseRepository
 
 
     // ================================================================
+    // Get Purchase By ID With Details
+    // ================================================================
+
+    public virtual async Task<Purchase?> GetByIdWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Purchase ID is required.",
+                nameof(id));
+        }
+
+        return await DbSet
+            .Include(purchase => purchase.Supplier)
+            .Include(purchase => purchase.Assets)
+            .FirstOrDefaultAsync(
+                purchase => purchase.Id == id,
+                cancellationToken);
+    }
+
+    // ================================================================
     // Get Purchases By Supplier
     // ================================================================
 
