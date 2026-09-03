@@ -62,8 +62,8 @@ public class DepartmentConfiguration
         // Established Date
         // ============================================================
 
-        builder.Property(d => d.EstablishedDate);
-
+        builder.Property(d => d.EstablishedDate)
+            .HasColumnType("date");
 
         // ============================================================
         // Soft Delete

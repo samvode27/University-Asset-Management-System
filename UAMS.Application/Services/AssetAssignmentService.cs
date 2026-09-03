@@ -21,6 +21,7 @@ public class AssetAssignmentService
     }
 
 
+
     // ================================================================
     // Create
     // ================================================================
@@ -143,12 +144,33 @@ public class AssetAssignmentService
         }
 
         // ------------------------------------------------------------
+        // Validate Asset Status
+        // ------------------------------------------------------------
+
+        if (asset.Status != AssetStatus.Available)
+        {
+            throw new InvalidOperationException(
+                "Only available assets can be assigned.");
+        }
+
+        // ------------------------------------------------------------
         // Generate Assignment Number
         // ------------------------------------------------------------
 
         var assignmentNumber =
             await GenerateAssignmentNumberAsync(
                 cancellationToken);
+
+        // ------------------------------------------------------------
+        // Normalize Expected Return Date
+        // ------------------------------------------------------------
+
+        DateTime? expectedReturnDate =
+            request.ExpectedReturnDate.HasValue
+                ? DateTime.SpecifyKind(
+                    request.ExpectedReturnDate.Value,
+                    DateTimeKind.Utc)
+                : null;
 
         // ------------------------------------------------------------
         // Create Entity
@@ -162,10 +184,16 @@ public class AssetAssignmentService
                 request.EmployeeId,
                 assignedById,
                 DateTime.UtcNow,
-                request.ExpectedReturnDate,
+                expectedReturnDate,
                 request.AssignmentLocation,
                 request.ConditionAtAssignment,
                 request.Remarks);
+
+        // ------------------------------------------------------------
+        // Update Asset Lifecycle
+        // ------------------------------------------------------------
+
+        asset.Assign();
 
         // ------------------------------------------------------------
         // Persist

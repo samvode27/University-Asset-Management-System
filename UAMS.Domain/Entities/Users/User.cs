@@ -41,6 +41,8 @@ public class User : AuditableEntity
     public ICollection<UserRole> UserRoles { get; private set; }
         = new List<UserRole>();
 
+    public ICollection<RefreshToken> RefreshTokens { get; private set; }
+        = new List<RefreshToken>();
 
     public static User Create(
         string employeeId,
@@ -62,13 +64,17 @@ public class User : AuditableEntity
         {
             EmployeeId = employeeId.Trim(),
             FullName = fullName.Trim(),
-            Email = email.Trim(),
+            Email = email.Trim().ToLowerInvariant(),
             PhoneNumber = phoneNumber.Trim(),
             DepartmentId = departmentId,
             Username = username.Trim(),
             PasswordHash = passwordHash,
+
+            IsActive = true,
             IsLocked = false,
-            FailedLoginAttempts = 0
+            IsDeleted = false,
+            FailedLoginAttempts = 0,
+            EmailVerified = false
         };
     }
 

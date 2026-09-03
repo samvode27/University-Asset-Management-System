@@ -108,7 +108,12 @@ public class AssetConfiguration
             .HasPrecision(18, 2);
 
         builder.Property(a => a.PurchaseDate)
-            .IsRequired();
+            .IsRequired()
+            .HasColumnType("timestamp without time zone");
+
+        builder.Property(a => a.WarrantyExpiryDate)
+            .IsRequired(false)
+            .HasColumnType("timestamp without time zone");
 
 
         // ============================================================
@@ -117,7 +122,8 @@ public class AssetConfiguration
 
         builder.Property(a => a.Status)
             .IsRequired()
-            .HasConversion<int>();
+            .HasConversion<string>()
+            .HasMaxLength(50);
 
 
         // ============================================================
@@ -126,7 +132,8 @@ public class AssetConfiguration
 
         builder.Property(a => a.Condition)
             .IsRequired()
-            .HasConversion<int>();
+            .HasConversion<string>()
+            .HasMaxLength(50);
 
 
         // ============================================================

@@ -26,6 +26,10 @@ public interface IUserService
         Guid id,
         CancellationToken cancellationToken = default);
 
+    Task RestoreAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
     Task ActivateUserAsync(
         Guid id,
         CancellationToken cancellationToken = default);
@@ -47,5 +51,9 @@ public interface IUserService
     Task ChangeDepartmentAsync(
         Guid id,
         ChangeDepartmentRequestDto request,
+        CancellationToken cancellationToken = default);
+
+    Task UnlockAsync(
+        Guid id,
         CancellationToken cancellationToken = default);
 }

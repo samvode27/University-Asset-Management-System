@@ -157,53 +157,53 @@ public class RoleService : IRoleService
     // Get Role Details
     // ================================================================
 
-public async Task<RoleDetailResponseDto?> GetDetailsAsync(
-    Guid id,
-    CancellationToken cancellationToken = default)
-{
-    if (id == Guid.Empty)
+    public async Task<RoleDetailResponseDto?> GetDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
     {
-        throw new ArgumentException(
-            "Role ID is required.",
-            nameof(id));
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Role ID is required.",
+                nameof(id));
+        }
+
+        var entity =
+            await _unitOfWork.Roles.GetByIdWithDetailsAsync(
+                id,
+                cancellationToken);
+
+        if (entity is null)
+        {
+            return null;
+        }
+
+        var permissions =
+            entity.RolePermissions
+                .Where(x => x.IsActive && x.Permission is not null)
+                .Select(x => MapPermission(x.Permission))
+                .ToList();
+
+        var users =
+            await _unitOfWork.Users.GetByRoleAsync(
+                id,
+                cancellationToken);
+
+        return new RoleDetailResponseDto
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            Code = entity.Code,
+            Description = entity.Description,
+            IsSystemRole = entity.IsSystemRole,
+            IsActive = entity.IsActive,
+            CreatedAt = entity.CreatedAt,
+            UpdatedAt = entity.UpdatedAt,
+            PermissionCount = permissions.Count,
+            UserCount = users.Count,
+            Permissions = permissions
+        };
     }
-
-    var entity =
-        await _unitOfWork.Roles.GetByIdWithDetailsAsync(
-            id,
-            cancellationToken);
-
-    if (entity is null)
-    {
-        return null;
-    }
-
-    var permissions =
-        entity.RolePermissions
-            .Where(x => x.IsActive && x.Permission is not null)
-            .Select(x => MapPermission(x.Permission))
-            .ToList();
-
-    var users =
-        await _unitOfWork.Users.GetByRoleAsync(
-            id,
-            cancellationToken);
-
-    return new RoleDetailResponseDto
-    {
-        Id = entity.Id,
-        Name = entity.Name,
-        Code = entity.Code,
-        Description = entity.Description,
-        IsSystemRole = entity.IsSystemRole,
-        IsActive = entity.IsActive,
-        CreatedAt = entity.CreatedAt,
-        UpdatedAt = entity.UpdatedAt,
-        PermissionCount = permissions.Count,
-        UserCount = users.Count,
-        Permissions = permissions
-    };
-}
 
 
     // ================================================================
@@ -409,12 +409,18 @@ public async Task<RoleDetailResponseDto?> GetDetailsAsync(
                     $"Permission '{permission.Name}' is inactive.");
             }
 
-            role.AddPermission(
-                permissionId,
-                assignedBy);
-        }
+            var rolePermission =
+                role.AddPermission(
+                    permissionId,
+                    assignedBy);
 
-        _unitOfWork.Roles.Update(role);
+            if (rolePermission is not null)
+            {
+                await _unitOfWork.RolePermissions.AddAsync(
+                    rolePermission,
+                    cancellationToken);
+            }
+        }
 
         await _unitOfWork.SaveChangesAsync(
             cancellationToken);
@@ -440,7 +446,7 @@ public async Task<RoleDetailResponseDto?> GetDetailsAsync(
         }
 
         var role =
-            await _unitOfWork.Roles.GetByIdAsync(
+            await _unitOfWork.Roles.GetByIdWithDetailsAsync(
                 id,
                 cancellationToken);
 
@@ -455,12 +461,9 @@ public async Task<RoleDetailResponseDto?> GetDetailsAsync(
             role.RemovePermission(permissionId);
         }
 
-        _unitOfWork.Roles.Update(role);
-
         await _unitOfWork.SaveChangesAsync(
             cancellationToken);
     }
-
 
     // ================================================================
     // Get Active Roles

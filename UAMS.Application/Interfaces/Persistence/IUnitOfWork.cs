@@ -5,11 +5,11 @@ namespace UAMS.Application.Interfaces.Persistence;
 public interface IUnitOfWork
 {
     IPermissionRepository Permissions { get; }
-
     IRoleRepository Roles { get; }
 
+    IUserRoleRepository UserRoles { get; }
     IUserRepository Users { get; }
-
+    IRefreshTokenRepository RefreshTokens { get; }
     IDepartmentRepository Departments { get; }
 
     IAssetCategoryRepository AssetCategories { get; }
@@ -43,6 +43,8 @@ public interface IUnitOfWork
     IFileAttachmentRepository FileAttachments { get; }
 
     IAuditLogRepository AuditLogs { get; }
+
+    IRolePermissionRepository RolePermissions { get; }
 
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default);

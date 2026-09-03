@@ -24,6 +24,7 @@ using Npgsql;
 using UAMS.Application.Services.Notifications;
 using UAMS.Application.Services.FileAttachments;
 using UAMS.Application.Services.AuditLogs;
+using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -129,7 +130,13 @@ builder.Services.AddDbContext<UAMSDbContext>(options =>
 // Controllers
 // ================================================================
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter());
+    });
 
 
 // ================================================================
@@ -379,6 +386,26 @@ builder.Services.AddScoped<
 // ================================================================
 
 var app = builder.Build();
+
+
+// ================================================================
+// Database Seeding
+// ================================================================
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var dbContext =
+        services.GetRequiredService<UAMSDbContext>();
+
+    var passwordService =
+        services.GetRequiredService<IPasswordService>();
+
+    await DatabaseSeeder.SeedAsync(
+        dbContext,
+        passwordService);
+}
 
 
 // ================================================================

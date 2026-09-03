@@ -31,7 +31,7 @@ public class UpdateDepartmentRequestValidator
             .When(x => !string.IsNullOrWhiteSpace(x.OfficeLocation));
 
         RuleFor(x => x.EstablishedDate)
-            .LessThanOrEqualTo(DateTime.UtcNow)
+            .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow))
             .WithMessage("Established date cannot be in the future.")
             .When(x => x.EstablishedDate.HasValue);
     }

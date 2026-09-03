@@ -114,19 +114,7 @@ public class UserService : IUserService
 
 
         // ------------------------------------------------------------
-        // Add User
-        // ------------------------------------------------------------
-
-        await _unitOfWork.Users.AddAsync(
-            user,
-            cancellationToken);
-
-        await _unitOfWork.SaveChangesAsync(
-            cancellationToken);
-
-
-        // ------------------------------------------------------------
-        // Assign Initial Role
+        // Create Initial Role Assignment
         // ------------------------------------------------------------
 
         var assignedBy = GetCurrentUserId();
@@ -137,6 +125,20 @@ public class UserService : IUserService
             assignedBy);
 
         user.UserRoles.Add(userRole);
+
+
+        // ------------------------------------------------------------
+        // Add User
+        // ------------------------------------------------------------
+
+        await _unitOfWork.Users.AddAsync(
+            user,
+            cancellationToken);
+
+
+        // ------------------------------------------------------------
+        // Save User + UserRole Together
+        // ------------------------------------------------------------
 
         await _unitOfWork.SaveChangesAsync(
             cancellationToken);
@@ -433,11 +435,11 @@ public class UserService : IUserService
         }
 
         var user =
-            await _unitOfWork.Users.GetByIdWithDetailsAsync(
+            await _unitOfWork.Users.GetByIdAsync(
                 id,
                 cancellationToken);
 
-        if (user is null)
+        if (user is null || user.IsDeleted)
         {
             throw new KeyNotFoundException(
                 "User not found.");
@@ -506,8 +508,6 @@ public class UserService : IUserService
             user.Deactivate();
         }
 
-
-        _unitOfWork.Users.Update(user);
 
         await _unitOfWork.SaveChangesAsync(
             cancellationToken);
@@ -641,9 +641,19 @@ public class UserService : IUserService
                 request.RoleId,
                 assignedBy);
 
-        user.UserRoles.Add(userRole);
 
-        _unitOfWork.Users.Update(user);
+        // ------------------------------------------------------------
+        // Add UserRole directly
+        // ------------------------------------------------------------
+
+        await _unitOfWork.UserRoles.AddAsync(
+            userRole,
+            cancellationToken);
+
+
+        // ------------------------------------------------------------
+        // Save
+        // ------------------------------------------------------------
 
         await _unitOfWork.SaveChangesAsync(
             cancellationToken);
@@ -827,7 +837,7 @@ public class UserService : IUserService
         }
 
         var user =
-            await _unitOfWork.Users.GetByIdAsync(
+            await _unitOfWork.Users.GetDeletedByIdAsync(
                 id,
                 cancellationToken);
 
@@ -863,7 +873,7 @@ public class UserService : IUserService
         }
 
         var user =
-            await _unitOfWork.Users.GetByIdWithAuthenticationDataAsync(
+            await _unitOfWork.Users.GetByIdAsync(
                 id,
                 cancellationToken);
 

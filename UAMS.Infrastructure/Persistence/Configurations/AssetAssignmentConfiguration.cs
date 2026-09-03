@@ -106,7 +106,8 @@ public class AssetAssignmentConfiguration
         // ============================================================
 
         builder.Property(aa => aa.ConditionAtAssignment)
-            .IsRequired();
+            .IsRequired()
+            .HasConversion<string>();
 
 
         // ============================================================
@@ -123,7 +124,8 @@ public class AssetAssignmentConfiguration
         // ============================================================
 
         builder.Property(aa => aa.Status)
-            .IsRequired();
+            .IsRequired()
+            .HasConversion<string>();
 
 
         // ============================================================

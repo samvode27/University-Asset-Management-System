@@ -97,4 +97,21 @@ public interface IUserRepository : IRepository<User>
     Task<User?> GetWithProfileDetailsAsync(
         Guid userId,
         CancellationToken cancellationToken = default);
+
+
+    Task<User?> GetByUsernameWithAuthenticationDataAsync(
+        string username,
+        CancellationToken cancellationToken = default);
+
+    Task<User?> GetByEmailWithAuthenticationDataAsync(
+        string email,
+        CancellationToken cancellationToken = default);
+
+    Task<User?> GetByIdIncludingDeletedAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
+    Task<User?> GetDeletedByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
 }

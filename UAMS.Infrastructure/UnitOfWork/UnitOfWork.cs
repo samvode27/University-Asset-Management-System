@@ -11,7 +11,12 @@ public sealed class UnitOfWork : IUnitOfWork
 
     private IPermissionRepository? _permissions;
     private IRoleRepository? _roles;
+
+    private IRolePermissionRepository? _rolePermissions;
+
+    private IUserRoleRepository? _userRoles;
     private IUserRepository? _users;
+    private IRefreshTokenRepository? _refreshTokens;
     private IDepartmentRepository? _departments;
     private IAssetCategoryRepository? _assetCategories;
     private ISupplierRepository? _suppliers;
@@ -41,8 +46,14 @@ public sealed class UnitOfWork : IUnitOfWork
     public IRoleRepository Roles =>
         _roles ??= new RoleRepository(_context);
 
+    public IUserRoleRepository UserRoles =>
+        _userRoles ??= new UserRoleRepository(_context);
+
     public IUserRepository Users =>
         _users ??= new UserRepository(_context);
+
+    public IRefreshTokenRepository RefreshTokens =>
+        _refreshTokens ??= new RefreshTokenRepository(_context);
 
     public IDepartmentRepository Departments =>
         _departments ??= new DepartmentRepository(_context);
@@ -95,9 +106,35 @@ public sealed class UnitOfWork : IUnitOfWork
     public IAuditLogRepository AuditLogs =>
         _auditLogs ??= new AuditLogRepository(_context);
 
+    public IRolePermissionRepository RolePermissions =>
+        _rolePermissions ??=
+        new RolePermissionRepository(_context);
+
     public async Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default)
     {
+        var entries = _context.ChangeTracker
+            .Entries()
+            .Where(e =>
+                e.State != Microsoft.EntityFrameworkCore.EntityState.Unchanged &&
+                e.State != Microsoft.EntityFrameworkCore.EntityState.Detached)
+            .ToList();
+
+        foreach (var entry in entries)
+        {
+            Console.WriteLine(
+                $"EF ENTITY: {entry.Entity.GetType().Name} | " +
+                $"STATE: {entry.State}");
+
+            foreach (var property in entry.Properties)
+            {
+                Console.WriteLine(
+                    $"   {property.Metadata.Name}: " +
+                    $"Original={property.OriginalValue} | " +
+                    $"Current={property.CurrentValue}");
+            }
+        }
+
         return await _context.SaveChangesAsync(cancellationToken);
     }
 }

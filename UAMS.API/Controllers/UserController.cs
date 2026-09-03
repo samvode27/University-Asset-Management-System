@@ -211,4 +211,45 @@ public class UserController : ControllerBase
 
         return NoContent();
     }
+
+
+    // ================================================================
+    // Restore Deleted User
+    // ================================================================
+
+    [HttpPost("{id:guid}/restore")]
+    public async Task<IActionResult> Restore(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await _userService.RestoreAsync(
+            id,
+            cancellationToken);
+
+        return Ok(new
+        {
+            succeeded = true,
+            message = "User restored successfully."
+        });
+    }
+
+    // ================================================================
+    // Unlock User
+    // ================================================================
+
+    [HttpPost("{id:guid}/unlock")]
+    public async Task<IActionResult> Unlock(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await _userService.UnlockAsync(
+            id,
+            cancellationToken);
+
+        return Ok(new
+        {
+            succeeded = true,
+            message = "User unlocked successfully."
+        });
+    }
 }

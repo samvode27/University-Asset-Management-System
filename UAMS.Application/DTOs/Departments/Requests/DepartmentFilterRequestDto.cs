@@ -12,9 +12,9 @@ public class DepartmentFilterRequestDto
 
     public bool? IsActive { get; set; }
 
-    public DateTime? EstablishedFrom { get; set; }
+    public DateOnly? EstablishedFrom { get; set; }
 
-    public DateTime? EstablishedTo { get; set; }
+    public DateOnly? EstablishedTo { get; set; }
 
     public int PageNumber { get; set; } = 1;
 

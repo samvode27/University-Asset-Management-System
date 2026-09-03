@@ -385,10 +385,14 @@ public class PurchaseService : IPurchaseService
         // Create Entity
         // ============================================================
 
+        var purchaseDate = DateTime.SpecifyKind(
+            request.PurchaseDate,
+            DateTimeKind.Utc);
+
         var purchase = Purchase.Create(
             purchaseNumber,
             request.SupplierId,
-            request.PurchaseDate,
+            purchaseDate,
             request.InvoiceNumber,
             request.PurchaseOrderNumber,
             request.Description,
@@ -468,9 +472,13 @@ public class PurchaseService : IPurchaseService
         // Update Entity
         // ============================================================
 
+        var purchaseDate = DateTime.SpecifyKind(
+            request.PurchaseDate,
+            DateTimeKind.Utc);
+
         purchase.Update(
             request.SupplierId,
-            request.PurchaseDate,
+            purchaseDate,
             request.InvoiceNumber,
             request.PurchaseOrderNumber,
             request.Description,

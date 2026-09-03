@@ -53,8 +53,9 @@ namespace UAMS.Infrastructure.Persistence.Migrations
                         .IsUnicode(false)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<int>("ConditionAtAssignment")
-                        .HasColumnType("integer");
+                    b.Property<string>("ConditionAtAssignment")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -89,8 +90,9 @@ namespace UAMS.Infrastructure.Persistence.Migrations
                         .IsUnicode(true)
                         .HasColumnType("character varying(1000)");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -666,8 +668,10 @@ namespace UAMS.Infrastructure.Persistence.Migrations
                         .IsUnicode(false)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<int>("Condition")
-                        .HasColumnType("integer");
+                    b.Property<string>("Condition")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -725,7 +729,7 @@ namespace UAMS.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric(18,2)");
 
                     b.Property<DateTime>("PurchaseDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid>("PurchaseId")
                         .HasColumnType("uuid");
@@ -735,8 +739,10 @@ namespace UAMS.Infrastructure.Persistence.Migrations
                         .IsUnicode(false)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -745,7 +751,7 @@ namespace UAMS.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("WarrantyExpiryDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -1096,8 +1102,8 @@ namespace UAMS.Infrastructure.Persistence.Migrations
                         .IsUnicode(true)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<DateTime?>("EstablishedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly?>("EstablishedDate")
+                        .HasColumnType("date");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -1850,6 +1856,46 @@ namespace UAMS.Infrastructure.Persistence.Migrations
                     b.ToTable("Suppliers", (string)null);
                 });
 
+            modelBuilder.Entity("UAMS.Domain.Entities.Users.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ReplacedByTokenHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens", (string)null);
+                });
+
             modelBuilder.Entity("UAMS.Domain.Entities.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1875,6 +1921,12 @@ namespace UAMS.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("EmailVerified")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("EmailVerifiedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("EmployeeId")
                         .IsRequired()
@@ -2390,6 +2442,17 @@ namespace UAMS.Infrastructure.Persistence.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("UAMS.Domain.Entities.Users.RefreshToken", b =>
+                {
+                    b.HasOne("UAMS.Domain.Entities.Users.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("UAMS.Domain.Entities.Users.User", b =>
                 {
                     b.HasOne("UAMS.Domain.Entities.Departments.Department", "Department")
@@ -2479,6 +2542,8 @@ namespace UAMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UAMS.Domain.Entities.Users.User", b =>
                 {
+                    b.Navigation("RefreshTokens");
+
                     b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618

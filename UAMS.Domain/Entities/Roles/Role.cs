@@ -96,7 +96,7 @@ public class Role : AuditableEntity
     // Permission Management
     // ================================================================
 
-    public void AddPermission(
+    public RolePermission? AddPermission(
         Guid permissionId,
         Guid assignedBy)
     {
@@ -118,14 +118,18 @@ public class Role : AuditableEntity
             x.PermissionId == permissionId &&
             x.IsActive))
         {
-            return;
+            return null;
         }
 
-        RolePermissions.Add(
+        var rolePermission =
             RolePermission.Create(
                 Id,
                 permissionId,
-                assignedBy));
+                assignedBy);
+
+        RolePermissions.Add(rolePermission);
+
+        return rolePermission;
     }
 
 

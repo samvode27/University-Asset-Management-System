@@ -10,7 +10,7 @@ public class CreateDepartmentRequestDto
 
     public string? OfficeLocation { get; set; }
 
-    public DateTime? EstablishedDate { get; set; }
+    public DateOnly? EstablishedDate { get; set; }
 
     public Guid? DepartmentHeadId { get; set; }
 }

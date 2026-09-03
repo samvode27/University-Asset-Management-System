@@ -19,7 +19,7 @@ public class Department : AuditableEntity
 
     public string? OfficeLocation { get; private set; }
 
-    public DateTime? EstablishedDate { get; private set; }
+    public DateOnly? EstablishedDate { get; private set; }
 
     // Department Head
     public Guid? DepartmentHeadId { get; private set; }
@@ -48,7 +48,7 @@ public class Department : AuditableEntity
         string name,
         string? description,
         string? officeLocation,
-        DateTime? establishedDate,
+        DateOnly? establishedDate,
         Guid? departmentHeadId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
@@ -80,7 +80,7 @@ public class Department : AuditableEntity
         string name,
         string? description,
         string? officeLocation,
-        DateTime? establishedDate,
+        DateOnly? establishedDate,
         Guid? departmentHeadId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);

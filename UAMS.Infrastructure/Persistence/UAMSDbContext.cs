@@ -44,6 +44,7 @@ public class UAMSDbContext : DbContext
 
     public DbSet<UserRole> UserRoles { get; set; }
 
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     // ================================================================
     // Organization

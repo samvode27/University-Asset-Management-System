@@ -513,4 +513,120 @@ public class UserRepository
                     !user.IsDeleted,
                 cancellationToken);
     }
+
+
+
+    // ================================================================
+    // Get User By Username With Authentication Data
+    // ================================================================
+
+    public virtual async Task<User?>
+        GetByUsernameWithAuthenticationDataAsync(
+            string username,
+            CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(username);
+
+        return await DbSet
+            .Include(user => user.Department)
+
+            .Include(user => user.UserRoles
+                .Where(userRole =>
+                    userRole.IsActive))
+
+                .ThenInclude(userRole => userRole.Role)
+
+                    .ThenInclude(role => role.RolePermissions
+                        .Where(rolePermission =>
+                            rolePermission.IsActive))
+
+                        .ThenInclude(rolePermission =>
+                            rolePermission.Permission)
+
+            .FirstOrDefaultAsync(
+                user => user.Username == username,
+                cancellationToken);
+    }
+
+
+    // ================================================================
+    // Get User By Email With Authentication Data
+    // ================================================================
+
+    public virtual async Task<User?>
+        GetByEmailWithAuthenticationDataAsync(
+            string email,
+            CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(email);
+
+        return await DbSet
+            .Include(user => user.Department)
+
+            .Include(user => user.UserRoles
+                .Where(userRole =>
+                    userRole.IsActive))
+
+                .ThenInclude(userRole => userRole.Role)
+
+                    .ThenInclude(role => role.RolePermissions
+                        .Where(rolePermission =>
+                            rolePermission.IsActive))
+
+                        .ThenInclude(rolePermission =>
+                            rolePermission.Permission)
+
+            .FirstOrDefaultAsync(
+                user => user.Email == email,
+                cancellationToken);
+    }
+
+
+    // ================================================================
+    // Get User By ID Including Deleted
+    // ================================================================
+
+    public virtual async Task<User?> GetByIdIncludingDeletedAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "User ID is required.",
+                nameof(id));
+        }
+
+        return await DbSet
+            .Include(user => user.Department)
+            .Include(user => user.UserRoles)
+                .ThenInclude(userRole => userRole.Role)
+            .FirstOrDefaultAsync(
+                user => user.Id == id,
+                cancellationToken);
+    }
+
+    // ================================================================
+    // Get Deleted User By ID
+    // ================================================================
+
+    public virtual async Task<User?> GetDeletedByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "User ID is required.",
+                nameof(id));
+        }
+
+        return await DbSet
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(
+                user =>
+                    user.Id == id &&
+                    user.IsDeleted,
+                cancellationToken);
+    }
 }

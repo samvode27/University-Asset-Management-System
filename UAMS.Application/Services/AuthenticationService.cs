@@ -93,15 +93,19 @@ public class AuthenticationService : IAuthenticationService
 
         if (identifier.Contains('@'))
         {
-            user = await _userRepository.GetByEmailAsync(
-                identifier.ToLowerInvariant(),
-                cancellationToken);
+            user =
+                await _userRepository
+                    .GetByEmailWithAuthenticationDataAsync(
+                        identifier.ToLowerInvariant(),
+                        cancellationToken);
         }
         else
         {
-            user = await _userRepository.GetByUsernameAsync(
-                identifier,
-                cancellationToken);
+            user =
+                await _userRepository
+                    .GetByUsernameWithAuthenticationDataAsync(
+                        identifier,
+                        cancellationToken);
         }
 
 

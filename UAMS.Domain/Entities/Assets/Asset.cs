@@ -237,6 +237,35 @@ public class Asset : AuditableEntity
 
 
     // ================================================================
+    // Assignment Lifecycle
+    // ================================================================
+
+    public void Assign()
+    {
+        if (Status != AssetStatus.Available)
+        {
+            throw new InvalidOperationException(
+                "Only available assets can be assigned.");
+        }
+
+        Status = AssetStatus.Assigned;
+    }
+
+
+    public void Return()
+    {
+        if (Status != AssetStatus.Assigned &&
+            Status != AssetStatus.InUse)
+        {
+            throw new InvalidOperationException(
+                "Only assigned or in-use assets can be returned.");
+        }
+
+        Status = AssetStatus.Available;
+    }
+
+
+    // ================================================================
     // Private Helpers
     // ================================================================
 

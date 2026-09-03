@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UAMS.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ddc7b70fe0a130ae936832edbb12366a06dc187b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bb5ad2716aaa0ce45521382891b7fc3f688dcd7d")]
 [assembly: System.Reflection.AssemblyProductAttribute("UAMS.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UAMS.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
